@@ -1,0 +1,4 @@
+#Fri May 31 03:58:07 EEST 2024
+base.0=/Users/mohamedihab/StudioProjects/incident_report_genartor/build/app/intermediates/dex/release/minifyReleaseWithR8/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex

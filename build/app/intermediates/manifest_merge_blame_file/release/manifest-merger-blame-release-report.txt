@@ -1,0 +1,157 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.incident_report_genartor"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+8-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml
+9        android:targetSdkVersion="34" />
+9-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml
+10    <!--
+11         Required to query activities that can process text, see:
+12         https://developer.android.com/training/package-visibility?hl=en and
+13         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+14
+15         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin.
+16    -->
+17    <queries>
+17-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:23:5-28:15
+18        <intent>
+18-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:24:9-27:18
+19            <action android:name="android.intent.action.PROCESS_TEXT" />
+19-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:25:13-72
+19-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:25:21-70
+20
+21            <data android:mimeType="text/plain" />
+21-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:26:13-50
+21-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:26:19-48
+22        </intent>
+23    </queries>
+24
+25    <permission
+25-->[androidx.core:core:1.12.0] /Users/mohamedihab/.gradle/caches/transforms-3/b1f9fd101cdd4074d9c67ce7dce6a5fc/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+26        android:name="com.example.incident_report_genartor.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+26-->[androidx.core:core:1.12.0] /Users/mohamedihab/.gradle/caches/transforms-3/b1f9fd101cdd4074d9c67ce7dce6a5fc/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+27        android:protectionLevel="signature" />
+27-->[androidx.core:core:1.12.0] /Users/mohamedihab/.gradle/caches/transforms-3/b1f9fd101cdd4074d9c67ce7dce6a5fc/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+28
+29    <uses-permission android:name="com.example.incident_report_genartor.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+29-->[androidx.core:core:1.12.0] /Users/mohamedihab/.gradle/caches/transforms-3/b1f9fd101cdd4074d9c67ce7dce6a5fc/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+29-->[androidx.core:core:1.12.0] /Users/mohamedihab/.gradle/caches/transforms-3/b1f9fd101cdd4074d9c67ce7dce6a5fc/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+30
+31    <application
+32        android:name="android.app.Application"
+32-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:2:38-71
+33        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+33-->[androidx.core:core:1.12.0] /Users/mohamedihab/.gradle/caches/transforms-3/b1f9fd101cdd4074d9c67ce7dce6a5fc/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
+34        android:icon="@mipmap/ic_launcher"
+34-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:2:72-106
+35        android:label="IRG" >
+35-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:2:18-37
+36        <activity
+36-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:3:9-13:20
+37            android:name="com.example.incident_report_genartor.MainActivity"
+37-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:3:19-47
+38            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+38-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:3:138-288
+39            android:exported="true"
+39-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:3:48-71
+40            android:hardwareAccelerated="true"
+40-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:3:289-323
+41            android:launchMode="singleTop"
+41-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:3:72-102
+42            android:theme="@style/LaunchTheme"
+42-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:3:103-137
+43            android:windowSoftInputMode="adjustResize" >
+43-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:3:324-366
+44
+45            <!--
+46                 Specifies an Android theme to apply to this Activity as soon as
+47                 the Android process has started. This theme is visible to the user
+48                 while the Flutter UI initializes. After that, this theme continues
+49                 to determine the Window background behind the Flutter UI.
+50            -->
+51            <meta-data
+51-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:8:13-119
+52                android:name="io.flutter.embedding.android.NormalTheme"
+52-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:8:24-79
+53                android:resource="@style/NormalTheme" />
+53-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:8:80-117
+54
+55            <intent-filter>
+55-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:9:13-12:29
+56                <action android:name="android.intent.action.MAIN" />
+56-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:10:17-68
+56-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:10:25-66
+57
+58                <category android:name="android.intent.category.LAUNCHER" />
+58-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:11:17-76
+58-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:11:27-74
+59            </intent-filter>
+60        </activity>
+61        <!--
+62             Don't delete the meta-data below.
+63             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java
+64        -->
+65        <meta-data
+65-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:16:9-71
+66            android:name="flutterEmbedding"
+66-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:16:20-51
+67            android:value="2" />
+67-->/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/src/main/AndroidManifest.xml:16:52-69
+68        <!--
+69           Declares a provider which allows us to store files to share in
+70           '.../caches/share_plus' and grant the receiving action access
+71        -->
+72        <provider
+72-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:15:9-23:20
+73            android:name="dev.fluttercommunity.plus.share.ShareFileProvider"
+73-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:16:13-77
+74            android:authorities="com.example.incident_report_genartor.flutter.share_provider"
+74-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:17:13-74
+75            android:exported="false"
+75-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:18:13-37
+76            android:grantUriPermissions="true" >
+76-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:19:13-47
+77            <meta-data
+77-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:20:13-22:68
+78                android:name="android.support.FILE_PROVIDER_PATHS"
+78-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:21:17-67
+79                android:resource="@xml/flutter_share_file_paths" />
+79-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:22:17-65
+80        </provider>
+81        <!--
+82           This manifest declared broadcast receiver allows us to use an explicit
+83           Intent when creating a PendingItent to be informed of the user's choice
+84        -->
+85        <receiver
+85-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:28:9-34:20
+86            android:name="dev.fluttercommunity.plus.share.SharePlusPendingIntent"
+86-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:29:13-82
+87            android:exported="false" >
+87-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:30:13-37
+88            <intent-filter>
+88-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:31:13-33:29
+89                <action android:name="EXTRA_CHOSEN_COMPONENT" />
+89-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:32:17-65
+89-->[:share_plus] /Users/mohamedihab/StudioProjects/incident_report_genartor/build/share_plus/intermediates/merged_manifest/release/AndroidManifest.xml:32:25-62
+90            </intent-filter>
+91        </receiver>
+92
+93        <uses-library
+93-->[androidx.window:window:1.0.0-beta04] /Users/mohamedihab/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:25:9-27:40
+94            android:name="androidx.window.extensions"
+94-->[androidx.window:window:1.0.0-beta04] /Users/mohamedihab/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:26:13-54
+95            android:required="false" />
+95-->[androidx.window:window:1.0.0-beta04] /Users/mohamedihab/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:27:13-37
+96        <uses-library
+96-->[androidx.window:window:1.0.0-beta04] /Users/mohamedihab/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:28:9-30:40
+97            android:name="androidx.window.sidecar"
+97-->[androidx.window:window:1.0.0-beta04] /Users/mohamedihab/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:29:13-51
+98            android:required="false" />
+98-->[androidx.window:window:1.0.0-beta04] /Users/mohamedihab/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:30:13-37
+99    </application>
+100
+101</manifest>

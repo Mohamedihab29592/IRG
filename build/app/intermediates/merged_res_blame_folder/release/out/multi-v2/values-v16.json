@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.incident_report_genartor.app-mergeReleaseResources-11:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "/Users/mohamedihab/.gradle/caches/transforms-3/b1f9fd101cdd4074d9c67ce7dce6a5fc/transformed/core-1.12.0/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
+                    }
+                }
+            ]
+        }
+    ]
+}

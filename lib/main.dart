@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(scaffoldBackgroundColor: Colors.grey[400],appBarTheme: AppBarTheme(color: Colors.grey[400],titleTextStyle: TextStyle(color: Colors.black,fontSize: 25))),
       debugShowCheckedModeBanner: false,
 
+      // This widget is the ro
       home:  MyHomePage(),
     );
   }

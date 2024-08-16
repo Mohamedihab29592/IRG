@@ -392,6 +392,14 @@ class IncidentData {
     "PA"
   ];
 
+  static const List<String> leaMembers = [
+    "Akram Ali",
+    "Ahmed ElDesouky",
+    "Mohamed Mansy",
+    "Momen Sayed",
+    "Tarek El Nagar",
+  ];
+
   static const List<String> detailsItems = [
     "A disgruntled customer asked to ",
     "A disgruntled customer refused to wait queue ",
@@ -401,7 +409,7 @@ class IncidentData {
   ];
 
   static const List<String> closureItems = ["In Progress", "Case closed","Case closed after reconciliation",];
-  static const List<String> socTeam = ["Mohamed Abo Elez", "Ahmed Hamdy","Mohamed Ihab","Ahmed Hassan","Karim Abo Ela","Mohamed Magdy",];
+  static const List<String> socTeam = ["Mohamed Abo Elez", "Ahmed Hamdy","Mohamed Ihab","Ahmed Hassan","Karim Abo Ela","Hady Khalifa",];
 
 
   static List<String> filterLocationItems(String locationType) {
@@ -441,19 +449,24 @@ class IncidentData {
       TextEditingController detailsController,
       TextEditingController actionController,
       TextEditingController closureController,
-      TextEditingController socMemberController
+      TextEditingController socMemberController,
+      TextEditingController leaMemberController
       ) {
     String customerInfo = '';
     if (cstNameController.text.isNotEmpty&& cstIdController.text.isNotEmpty)  {
       customerInfo = 'Customer Info:\nName:${cstNameController.text}.\nID:${cstIdController.text}.\n\n';
     }
-
+    String leaName = '';
+    if (leaMemberController.text.isNotEmpty)  {
+      leaName = 'Lea Member Name: ${leaMemberController.text}.\n\n';
+    }
 
     Share.share('Incident Location: ${locationController.text}.\n\n'
         'Reporter: ${reporterController.text}.\n\n'
         'Details: ${detailsController.text}.\n\n'
-        '${customerInfo}'
+        '$customerInfo'
         'Soc action: Case reported to ${actionController.text}.\n\n'
+        "$leaName"
         'Closure: ${closureController.text}.\n\n'
         'Soc Member: ${socMemberController.text}.\n\n'
 

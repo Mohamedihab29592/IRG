@@ -22,6 +22,7 @@ var cstIDController = TextEditingController();
 var actionController = TextEditingController();
 var closureController = TextEditingController();
 var socMemberController = TextEditingController();
+var leaMemberController = TextEditingController();
 
 class _MyHomePageState extends State<MyHomePage> {
   List<String> locationFilterItems = [];
@@ -164,6 +165,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       height: 20,
                     ),
                     MyFormField(
+                        validator: (value) => null,
+                        showDownMenu: true,
+                        controller: leaMemberController,
+                        title: ' LEA Member Name (Optional)',
+                        maxLines: 1,
+                        menuItems: IncidentData.leaMembers),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    MyFormField(
                         showDownMenu: true,
 
                         controller: closureController,
@@ -193,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            IncidentData().share(cstNamesController,cstIDController,locationController,reporterController ,detailsController, actionController, closureController,socMemberController);
+                            IncidentData().share(cstNamesController,cstIDController,locationController,reporterController ,detailsController, actionController, closureController,socMemberController,leaMemberController);
                           }
                         },
                         child: Padding(

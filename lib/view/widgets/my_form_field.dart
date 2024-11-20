@@ -18,6 +18,7 @@ class MyFormField extends StatefulWidget {
       showDownMenu;
   bool multiSelect ;
   final FormFieldValidator<String>? validator; // Add validator as a parameter
+  void Function()? onTap;
 
   MyFormField({
     Key? key,
@@ -28,6 +29,7 @@ class MyFormField extends StatefulWidget {
     this.suffixIcon,
     this.multiSelect = false,
     this.suffixIconPressed,
+    this.onTap,
     this.widget,
     this.controller,
      this.title="",
@@ -74,7 +76,7 @@ class _MyFormFieldState extends State<MyFormField> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
-
+                onTap:widget.onTap,
                 readOnly: widget.isReadonly,
 
                 validator: widget.validator ?? (value) {

@@ -1,8 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:share_plus/share_plus.dart';
+enum YesNo { Yes, No ,Not_Relevant }
 
 class IncidentData {
 
+  Map<String, YesNo> selectedOptions = {
+    "equipmentDamaged": YesNo.No,
+    "employeeInjured": YesNo.No,
+    "vendorInjured": YesNo.No,
+    "alarmReceived": YesNo.No,
+    "actionSoc": YesNo.No,
+    "guardExistence": YesNo.No,
+    "guardAttacked": YesNo.No,
+    "cctvAvailable": YesNo.No,
+    "legalNotified": YesNo.No,
+    "policeReport": YesNo.No,
+    "leaAction": YesNo.No,
+  };
+  static const List<String> incidentTypeItems = [
+    "Hassle",
+    "Fire",
+    "Pomp",
+    "demonstration",
+    "terrorism",
+    "Other"
+  ];
   static const List<String> locationTypeItems = [
     "Building",
     "Owned",
@@ -339,42 +361,54 @@ class IncidentData {
 
   static const List<String> incidentWareHouseLocationItems = ["Abu Rawash 1"];
   static const List<String> incidentFranchiseLocationItems = [
-    "10th of Ramdan Franchise Store",
-    "Banha Franchise Store",
-    "Bany sweif Franchise Store",
-    "Carrefour Tanta Franchise Store",
-    "Damanhour Franchise Store",
-    "Damietta Kornaish Store Franchise Store",
-    "Dandy Mall Franchise Store",
-    "Dumiat Franchise Store",
-    "ElDemerdash Franchise Store",
-    "El-Menya Franchise Store",
-    "El-Monofeya Franchise Store",
-    "Embaba Franchise Store",
-    "Fayoum Franchise Store",
-    "Helwan Franchise Store",
-    "Hurghada Franchise Store",
-    "Hyper One Franchise Store",
-    "Ibn sander Franchise Store",
-    "Kafr Elshekh Franchise Store",
-    "Khalifa El-Maamoon Franchise Store",
-    "Maadi Laselki Franchise Store",
-    "Masr wel Sudan Franchise Store",
-    "Merryland Franchise Store",
-    "Miami Franchise Store",
-    "Mokkatam Franchise Store",
-    "Mosadaq Franchise Store",
-    "Naga3 Hamadi Franchise Store",
-    "Nasr City Franchise Store",
-    "Qena Franchise Store",
-    "Sharm Franchise Store",
-    "Shoubra Franchise Store",
-    "shoubra new Franchise Store",
-    "Sohag Franchise Store",
-    "Sudan Franchise Store",
-    "Tayaran-Nasr City Franchise Store",
-    "Zahran Franchise Store ",
-    "Zamalek Franchise Store",
+    "Damietta Kornaish Store",
+    "Dumiat",
+    "Mansoura",
+    "Dandy Mall",
+    "Hyper One Store",
+    "Faisal",
+    "Haram store",
+    "El-Monofeya",
+    "Kafr Elshekh",
+    "Merghany",
+    "ElDemerdash",
+    "Khalifa El-Maamoon",
+    "Nasr City",
+    "Tayaran-Nasr City",
+    "Abbas El Akad Store",
+    "Geish Store",
+    "Hurghada",
+    "Naga3 Hamadi",
+    "Qena",
+    "Sohag",
+    "Embaba",
+    "Mosadaq",
+    "Sudan",
+    "Shehab",
+    "Damanhour",
+    "Miami",
+    "Zahran Store",
+    "Marsa Matrouh",
+    "Masr wel Sudan",
+    "Mokkatam",
+    "Zeytoun",
+    "Carrefour Obour",
+    "Sharm",
+    "Bany sweif",
+    "El Fayoum",
+    "El-Menya",
+    "10th of Ramdan",
+    "Banha",
+    "Helwan",
+    "Maadi Laselki",
+    "Shoubra",
+    "shoubra new",
+    "Zamalek",
+    "Zagazik 2",
+    "Maadi 9",
+    "Down Town Store",
+    "Maadi Misr Helwan St Store",
+    "Arena Mall Store"
   ];
   static const List<String> incidentApartmentLocationItems = [
     "Assuit Apartment",
@@ -450,7 +484,12 @@ class IncidentData {
       TextEditingController actionController,
       TextEditingController closureController,
       TextEditingController socMemberController,
-      TextEditingController leaMemberController
+      TextEditingController leaMemberController,
+      TextEditingController policeController,
+      TextEditingController guardAttackController,
+
+
+
       ) {
     String customerInfo = '';
     if (cstNameController.text.isNotEmpty&& cstIdController.text.isNotEmpty)  {
@@ -460,12 +499,22 @@ class IncidentData {
     if (leaMemberController.text.isNotEmpty)  {
       leaName = 'Lea Member Name: ${leaMemberController.text}.\n\n';
     }
+    String policeReport = '';
+    if (policeController.text.isNotEmpty)  {
+      policeReport = 'Police Report Number: ${policeController.text}.\n\n';
+    }
+    String guardAttack = '';
+    if (guardAttackController.text.isNotEmpty)  {
+      guardAttack = 'Guard Attack Details: ${guardAttackController.text}.\n\n';
+    }
 
     Share.share('Incident Location: ${locationController.text}.\n\n'
         'Reporter: ${reporterController.text}.\n\n'
         'Details: ${detailsController.text}.\n\n'
         '$customerInfo'
         'Soc action: Case reported to ${actionController.text}.\n\n'
+        "$guardAttack"
+        "$policeReport"
         "$leaName"
         'Closure: ${closureController.text}.\n\n'
         'Soc Member: ${socMemberController.text}.\n\n'

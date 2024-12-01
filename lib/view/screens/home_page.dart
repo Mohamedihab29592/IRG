@@ -1122,7 +1122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   cstNamesController,
                                   cstIDController,
                                   locationController,
-                                  reporterController,
+                                  reporterNameController,
                                   detailsController,
                                   actionController,
                                   closureController,
@@ -1131,6 +1131,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                 policeNuController,
                                 guardAttackDController
 
+                              );
+                            }else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Please fill required data"),
+                                  duration: Duration(seconds: 3),
+                                ),
                               );
                             }
                           },

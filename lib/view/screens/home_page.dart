@@ -99,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     incidentTypeController.clear();
                     locationController.clear();
                     reporterController.clear();
+                    reporterNameController.clear();
                     detailsController.clear();
                     cstNamesController.clear();
                     cstIDController.clear();
@@ -112,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     timeController.clear();
                     policeNuController.clear();
                     guardAttackDController.clear();
+                    _removeImage();
 
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("All data has been cleared")));
@@ -1401,7 +1403,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       final outputFile =
-          File('${externalDocumentsDir.path}/Incident report.docx');
+          File('${externalDocumentsDir.path}/Incident report - ${locationName}.docx');
       await outputFile.writeAsBytes(d);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

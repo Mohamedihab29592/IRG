@@ -6,9 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import '../../controller/bloc.dart';
 import '../../controller/events.dart';
 import '../../controller/state.dart';
-import '../screens/splash.dart';
-import 'appBar.dart';
-import 'my_form_field.dart';
+import '../../../../main_layout/splash.dart';
+import '../widgets/appBar.dart';
+import '../widgets/my_form_field.dart';
 
 
 
@@ -75,55 +75,41 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
         }
       },
       builder: (context, state) {
-        if (state is IncidentLoading) {
-          return SplashScreen();
-
-        }
-
-
-         if(state is IncidentLoaded)
-           {
-             return   PopScope(
-                 canPop: false,
-                 child: SafeArea(
-                   child:
-                   Scaffold(
-                     appBar: AppbarWidget(
-                       context: context,
-                       typeController: typeController,
-                       incidentTypeController: incidentTypeController,
-                       locationController: locationController,
-                       reporterController: reporterController,
-                       reporterNameController: reporterNameController,
-                       detailsController: detailsController,
-                       cstNamesController: cstNamesController,
-                       cstIDController: cstIDController,
-                       actionController: cstIDController,
-                       closureController: closureController,
-                       socMemberController: socMemberController,
-                       addressController: addressController,
-                       reporterIdController: reporterIdController,
-                       leaMemberController: leaMemberController,
-                       dateController: dateController,
-                       timeController: timeController,
-                       policeNuController: policeNuController,
-                       guardAttackDController: guardAttackDController,
-                     ),
-                     body:   _buildForm(context, state),
+        return   PopScope(
+            canPop: false,
+            child: SafeArea(
+              child:
+              Scaffold(
+                appBar: AppbarWidget(
+                  context: context,
+                  typeController: typeController,
+                  incidentTypeController: incidentTypeController,
+                  locationController: locationController,
+                  reporterController: reporterController,
+                  reporterNameController: reporterNameController,
+                  detailsController: detailsController,
+                  cstNamesController: cstNamesController,
+                  cstIDController: cstIDController,
+                  actionController: cstIDController,
+                  closureController: closureController,
+                  socMemberController: socMemberController,
+                  addressController: addressController,
+                  reporterIdController: reporterIdController,
+                  leaMemberController: leaMemberController,
+                  dateController: dateController,
+                  timeController: timeController,
+                  policeNuController: policeNuController,
+                  guardAttackDController: guardAttackDController,
+                ),
+                body: (state is IncidentLoaded) ? _buildForm(context, state):Center(child: CircularProgressIndicator.adaptive()),
 
 
 
-                   ),
-                 )
+              ),
+            )
 
 
-             );
-           }
-
-
-
-
-        return SplashScreen(isError: true,);
+        );
       },
     );
   }

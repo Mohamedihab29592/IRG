@@ -20,7 +20,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     on<ExportDocumentEvent>(_onExportDocument);
     on<ShareReportEvent>(_onShareReport);
   }
-
+ Map<String, dynamic> incidentType = {};
   Future<void> _onLoadInitialData(
       LoadInitialDataEvent event,
       Emitter<IncidentState> emit,
@@ -67,6 +67,8 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       final currentState = state as IncidentLoaded;
       final newFormData = Map<String, dynamic>.from(currentState.formData)
         ..['incidentType'] = event.incidentType;
+      incidentType = newFormData;
+
       emit(currentState.copyWith(formData: newFormData));
     }
   }

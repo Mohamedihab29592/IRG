@@ -1,5 +1,5 @@
 import 'package:IRG/features/Audit/presenation/view/screens/audit_screen.dart';
-import 'package:IRG/features/IRG/presenation/view/screens/incident_report_form.dart';
+import 'package:IRG/features/IRG/presenation/view/screens/incident_report_page.dart';
 import 'package:IRG/features/Locations/presenation/view/screens/location_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +16,10 @@ class _LayoutState extends State<Layout> {
     return Scaffold(
 
       body: screens[currentIndex],
-      bottomNavigationBar: BottomNavigationBar(items: [
+      bottomNavigationBar: BottomNavigationBar(
+        elevation: 0,
+
+        items: [
         BottomNavigationBarItem(icon: Icon(Icons.report,),label: 'Incident Report'),
         BottomNavigationBarItem(icon: Icon(Icons.edit,),label: 'Audit'),
         BottomNavigationBarItem(icon: Icon(Icons.add_location_sharp,),label: "Locations"),
@@ -45,5 +48,5 @@ class _LayoutState extends State<Layout> {
     });
   }
   List<String> appBarTitle = ["Incident Report", "Audit", "Locations"];
-  List<Widget> screens = [IncidentReportPage(), AuditScreen(), LocationsScreen()];
+  List<Widget> screens = [IncidentReportForm(), AuditScreen(), LocationsScreen()];
 }

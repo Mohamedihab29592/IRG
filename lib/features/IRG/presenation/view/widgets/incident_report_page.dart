@@ -75,55 +75,45 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
         }
       },
       builder: (context, state) {
-        if (state is IncidentLoading) {
-          return SplashScreen();
-
-        }
-
-
-         if(state is IncidentLoaded)
-           {
-             return   PopScope(
-                 canPop: false,
-                 child: SafeArea(
-                   child:
-                   Scaffold(
-                     appBar: AppbarWidget(
-                       context: context,
-                       typeController: typeController,
-                       incidentTypeController: incidentTypeController,
-                       locationController: locationController,
-                       reporterController: reporterController,
-                       reporterNameController: reporterNameController,
-                       detailsController: detailsController,
-                       cstNamesController: cstNamesController,
-                       cstIDController: cstIDController,
-                       actionController: cstIDController,
-                       closureController: closureController,
-                       socMemberController: socMemberController,
-                       addressController: addressController,
-                       reporterIdController: reporterIdController,
-                       leaMemberController: leaMemberController,
-                       dateController: dateController,
-                       timeController: timeController,
-                       policeNuController: policeNuController,
-                       guardAttackDController: guardAttackDController,
-                     ),
-                     body:   _buildForm(context, state),
+        if(state is IncidentError)
+          {
+            return SplashScreen(isError: true,);
+          }
+        return   PopScope(
+            canPop: false,
+            child: SafeArea(
+              child:
+              Scaffold(
+                appBar: AppbarWidget(
+                  context: context,
+                  typeController: typeController,
+                  incidentTypeController: incidentTypeController,
+                  locationController: locationController,
+                  reporterController: reporterController,
+                  reporterNameController: reporterNameController,
+                  detailsController: detailsController,
+                  cstNamesController: cstNamesController,
+                  cstIDController: cstIDController,
+                  actionController: cstIDController,
+                  closureController: closureController,
+                  socMemberController: socMemberController,
+                  addressController: addressController,
+                  reporterIdController: reporterIdController,
+                  leaMemberController: leaMemberController,
+                  dateController: dateController,
+                  timeController: timeController,
+                  policeNuController: policeNuController,
+                  guardAttackDController: guardAttackDController,
+                ),
+                body:  (state is IncidentLoaded) ? _buildForm(context, state) :Center(child: CircularProgressIndicator.adaptive(),),
 
 
 
-                   ),
-                 )
+              ),
+            )
 
 
-             );
-           }
-
-
-
-
-        return SplashScreen(isError: true,);
+        );
       },
     );
   }

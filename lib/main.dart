@@ -1,8 +1,8 @@
 import 'package:IRG/core/services/bloc_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'core/services/di.dart';
+import 'core/constants/layout.dart';
 import 'features/IRG/presenation/view/screens/incident_report_form.dart';
 
 
@@ -24,8 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(scaffoldBackgroundColor: Colors.grey[400],appBarTheme: AppBarTheme(color: Colors.grey[400],titleTextStyle: TextStyle(color: Colors.black,fontSize: 25))),
       debugShowCheckedModeBanner: false,
 
-      // This widget is the ro
-      home:  IncidentReportPage(),
+      home:  Layout(),
     );
   }
 }

@@ -128,7 +128,6 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
     );
   }
 
-  // Your existing UI building methods, modified to use BLoC
   Widget _buildForm(BuildContext context, IncidentLoaded state) {
     String? selectedLocationType;
 
@@ -142,7 +141,6 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
             children: [
               //Location type
               MyFormField(
-
                 validator: (value) => null,
                 hint: "",
                 showDownMenu: true,
@@ -1141,5 +1139,4 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
     );
   }
 
-// Add other UI building methods...
 }

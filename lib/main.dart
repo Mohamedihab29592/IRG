@@ -1,11 +1,16 @@
-import 'package:IRG/view/screens/home_page.dart';
+import 'package:IRG/core/services/bloc_observer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'core/services/di.dart';
+import 'features/IRG/presenation/view/screens/incident_report_form.dart';
 
 
 
-void main() {
-
-
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await init();
+Bloc.observer  = AppBlocObserver();
   runApp(const MyApp());
 }
 
@@ -20,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       // This widget is the ro
-      home:  MyHomePage(),
+      home:  IncidentReportPage(),
     );
   }
 }

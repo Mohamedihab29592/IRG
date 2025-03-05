@@ -6,6 +6,8 @@ class MyFormField extends StatefulWidget {
   final double radius;
   final String? title;
   final String? hint;
+  final bool enableSpellCheck;
+
   final VoidCallback? suffixIconPressed;
   final IconData? suffixIcon;
   final Widget? widget;
@@ -17,6 +19,7 @@ class MyFormField extends StatefulWidget {
   bool multiSelect;
   final String? dependentValue; // Add this to track the dependent field's value
   final Function(String)? onDependentValueChanged; // Callback for dependent field changes
+  final TextInputType textType;
 
   final FormFieldValidator<String>? validator; // Add validator as a parameter
   void Function()? onTap;
@@ -24,6 +27,9 @@ class MyFormField extends StatefulWidget {
 
   MyFormField({
     Key? key,
+    this.enableSpellCheck = false,
+    this.textType = TextInputType.text,
+
     this.isPassword = false,
     this.radius = 15,
     this.isReadonly = false,
@@ -76,6 +82,8 @@ class _MyFormFieldState extends State<MyFormField> {
       if (searchValue.isEmpty) {
         _filteredItems = widget.menuItems ?? [];
       } else {
+        _isMenuOpen = true;
+
         _filteredItems = (widget.menuItems ?? [])
             .where((item) =>
             item.name.toLowerCase().contains(searchValue.toLowerCase()))
@@ -117,6 +125,10 @@ class _MyFormFieldState extends State<MyFormField> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
+                  keyboardType: widget.textType,
+                  textCapitalization: TextCapitalization.sentences,
+                  autocorrect: widget.enableSpellCheck,
+                  enableSuggestions: widget.enableSpellCheck,
                   onTap: widget.onTap,
                   readOnly: widget.isReadonly,
                   validator: widget.validator ??

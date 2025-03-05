@@ -250,6 +250,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   ),
                   Expanded(
                     child: MyFormField(
+                      textType: TextInputType.number,
+
                       validator: (value) => null,
                       hint: "Staff ID",
                       controller: reporterIdController,
@@ -262,6 +264,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               ),
               //Details
               MyFormField(
+                enableSpellCheck: true,
                 showDownMenu: true,
                 controller: detailsController,
                 title: ' Details',
@@ -286,6 +289,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   ),
                   Expanded(
                     child: MyFormField(
+                      textType: TextInputType.number,
                       validator: (value) => null,
                       hint: "ID",
                       controller: cstIDController,
@@ -917,6 +921,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                 height: 20,
               ),
               MyFormField(
+                enableSpellCheck: true,
+
                 validator: (value) => null,
                 title: "Guard Attack Details (Optional)",
                 hint: "",
@@ -947,6 +953,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               //Closure
 
               MyFormField(
+                  enableSpellCheck: true,
+
                   showDownMenu: true,
                   controller: closureController,
                   title: 'Closure',

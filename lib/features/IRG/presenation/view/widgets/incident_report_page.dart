@@ -67,6 +67,12 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
   Widget build(BuildContext context) {
     return BlocConsumer<IncidentBloc, IncidentState>(
       listener: (context, state) {
+        if(state is IncidentError)
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(state.message)),
+          );        }
         if (state is DocumentExported) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -75,10 +81,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
         }
       },
       builder: (context, state) {
-        if(state is IncidentError)
-          {
-            return SplashScreen(isError: true,);
-          }
+
         return   PopScope(
             canPop: false,
             child: SafeArea(

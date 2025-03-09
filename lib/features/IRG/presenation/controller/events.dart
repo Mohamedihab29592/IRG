@@ -54,3 +54,9 @@ class ShareReportEvent extends IncidentEvent {
   ShareReportEvent({required this.formData});
 }
 
+
+class SendReportEvent extends IncidentEvent {
+  final Map<String, dynamic> formData;
+  final File? imageFile;
+  SendReportEvent({required this.formData,required this.imageFile});
+}

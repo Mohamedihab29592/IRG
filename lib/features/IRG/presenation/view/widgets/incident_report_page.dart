@@ -6,8 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../controller/bloc.dart';
 import '../../controller/events.dart';
 import '../../controller/state.dart';
-import '../screens/splash.dart';
 import 'appBar.dart';
+import 'buttons.dart';
 import 'my_form_field.dart';
 
 
@@ -1016,125 +1016,139 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                 height: 20,
               ),
               //Share
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Color(0xFFD32F2F)),
-                  ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      context
-                          .read<IncidentBloc>()
-                          .add(ShareReportEvent(formData: {
-                            'customerName': cstNamesController.text,
-                            'customerId': cstIDController.text,
-                            'locationName': locationController.text,
-                            'reporterName': reporterNameController.text,
-                            'details': detailsController.text,
-                            'socAction': actionController.text,
-                            'closure': closureController.text,
-                            'socMember': socMemberController.text,
-                            'leaMemberName': leaMemberController.text,
-                            'policeReportNumber': policeNuController.text,
-                            'guardAttackDetails': guardAttackDController.text
-                          }));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Please fill required data"),
-                          duration: Duration(seconds: 3),
-                        ),
-                      );
-                    }
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.share,
-                          color: Colors.white,
-                        ),
-                        SizedBox(width: 8.0),
-                        Text(
-                          'Share',
-                          style: TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ],
+              Button( onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  context
+                      .read<IncidentBloc>()
+                      .add(ShareReportEvent(formData: {
+                    'customerName': cstNamesController.text,
+                    'customerId': cstIDController.text,
+                    'locationName': locationController.text,
+                    'reporterName': reporterNameController.text,
+                    'details': detailsController.text,
+                    'socAction': actionController.text,
+                    'closure': closureController.text,
+                    'socMember': socMemberController.text,
+                    'leaMemberName': leaMemberController.text,
+                    'policeReportNumber': policeNuController.text,
+                    'guardAttackDetails': guardAttackDController.text
+                  }));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Please fill required data"),
+                      duration: Duration(seconds: 3),
                     ),
-                  ),
-                ),
-              ),
+                  );
+                }
+              }, title: 'Share', icon:  Icons.share,),
+
+
               SizedBox(
                 height: 10,
               ),
               //Export
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Color(0xFFD32F2F)),
-                  ),
-                  onPressed: () {
-                    if(_formKey.currentState!.validate())
-                      {
-                        context.read<IncidentBloc>().add(ExportDocumentEvent(
-                          formData: {
-                            "date": dateController.text,
-                            "type": incidentTypeController.text,
-                            "time": timeController.text,
-                            "reported": reporterController.text,
-                            "locationName": locationController.text,
-                            "address": addressController.text,
-                            "reporterName": reporterNameController.text,
-                            "staffId": reporterIdController.text,
-                            "customerName": cstNamesController.text,
-                            "customerId": cstIDController.text,
-                            "details": detailsController.text,
-                            "socAction": actionController.text,
-                            "damaged": state.radioSelections[
-                            "equipmentDamaged"].toString().substring(6),
-                            "injured": state.radioSelections["employeeInjured"].toString().substring(6),
-                            "vendor": state.radioSelections["vendorInjured"].toString().substring(6),
-                            "takenby": state.radioSelections["actionSoc"].toString().substring(6),
-                            "alarm": state.radioSelections["alarmReceived"].toString().substring(6),
-                            "guardloc": state.radioSelections["guardExistence"].toString().substring(6),
-                            "guardatt": state.radioSelections["guardAttacked"].toString().substring(6),
-                            "cctv": state.radioSelections["cctvAvailable"].toString().substring(6),
-                            "legal": state.radioSelections["legalNotified"].toString().substring(6),
-                            "lea": state.radioSelections["leaAction"].toString().substring(6),
-                            "policere": state.radioSelections["policeReport"].toString().substring(6),
-                            "policenu": policeNuController.text,
-                            "guardattd": guardAttackDController.text,
-                            "closure": closureController.text,
+              Button(onPressed: () {
+                if(_formKey.currentState!.validate())
+                {
+                  context.read<IncidentBloc>().add(ExportDocumentEvent(
+                    formData: {
+                      "date": dateController.text,
+                      "type": incidentTypeController.text,
+                      "time": timeController.text,
+                      "reported": reporterController.text,
+                      "locationName": locationController.text,
+                      "address": addressController.text,
+                      "reporterName": reporterNameController.text,
+                      "staffId": reporterIdController.text,
+                      "customerName": cstNamesController.text,
+                      "customerId": cstIDController.text,
+                      "details": detailsController.text,
+                      "socAction": actionController.text,
+                      "damaged": state.radioSelections[
+                      "equipmentDamaged"].toString().substring(6),
+                      "injured": state.radioSelections["employeeInjured"].toString().substring(6),
+                      "vendor": state.radioSelections["vendorInjured"].toString().substring(6),
+                      "takenby": state.radioSelections["actionSoc"].toString().substring(6),
+                      "alarm": state.radioSelections["alarmReceived"].toString().substring(6),
+                      "guardloc": state.radioSelections["guardExistence"].toString().substring(6),
+                      "guardatt": state.radioSelections["guardAttacked"].toString().substring(6),
+                      "cctv": state.radioSelections["cctvAvailable"].toString().substring(6),
+                      "legal": state.radioSelections["legalNotified"].toString().substring(6),
+                      "lea": state.radioSelections["leaAction"].toString().substring(6),
+                      "policere": state.radioSelections["policeReport"].toString().substring(6),
+                      "policenu": policeNuController.text,
+                      "guardattd": guardAttackDController.text,
+                      "closure": closureController.text,
 
-                          },
-                          imageFile: _selectedImage,
-                        ));
+                    },
+                    imageFile: _selectedImage,
+                  ));
 
-                      }
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.import_export,
-                          color: Colors.white,
-                        ),
-                        SizedBox(width: 8.0),
-                        Text(
-                          'Export',
-                          style: TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ],
+                }
+                else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please fill required data"),
+                      duration: Duration(seconds: 3),
                     ),
-                  ),
-                ),
+                  );
+                }
+              }, title: 'Export', icon:  Icons.import_export,),
+              SizedBox(
+                height: 10,
               ),
+              Button(onPressed: () {
+                if(_formKey.currentState!.validate())
+                {
+                  context.read<IncidentBloc>().add(SendReportEvent(
+                    formData: {
+                      'socMember': socMemberController.text,
+
+                      "date": dateController.text,
+                      "type": incidentTypeController.text,
+                      "time": timeController.text,
+                      "reported": reporterController.text,
+                      "locationName": locationController.text,
+                      "address": addressController.text,
+                      "reporterName": reporterNameController.text,
+                      "staffId": reporterIdController.text,
+                      "customerName": cstNamesController.text,
+                      "customerId": cstIDController.text,
+                      "details": detailsController.text,
+                      "socAction": actionController.text,
+                      "damaged": state.radioSelections[
+                      "equipmentDamaged"].toString().substring(6),
+                      "injured": state.radioSelections["employeeInjured"].toString().substring(6),
+                      "vendor": state.radioSelections["vendorInjured"].toString().substring(6),
+                      "takenby": state.radioSelections["actionSoc"].toString().substring(6),
+                      "alarm": state.radioSelections["alarmReceived"].toString().substring(6),
+                      "guardloc": state.radioSelections["guardExistence"].toString().substring(6),
+                      "guardatt": state.radioSelections["guardAttacked"].toString().substring(6),
+                      "cctv": state.radioSelections["cctvAvailable"].toString().substring(6),
+                      "legal": state.radioSelections["legalNotified"].toString().substring(6),
+                      "lea": state.radioSelections["leaAction"].toString().substring(6),
+                      "policere": state.radioSelections["policeReport"].toString().substring(6),
+                      "policenu": policeNuController.text,
+                      "guardattd": guardAttackDController.text,
+                      "closure": closureController.text,
+
+                    },
+                    imageFile: _selectedImage,
+
+                  ));
+
+                }
+                else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please fill required data"),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                }
+              }, title: 'Export & Send Report', icon:  Icons.email,),
+
             ],
           ),
         ),

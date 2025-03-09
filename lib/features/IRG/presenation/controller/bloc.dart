@@ -3,6 +3,7 @@ import 'package:IRG/features/IRG/presenation/controller/state.dart';
 import 'package:docx_template/docx_template.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/constants/enum.dart';
@@ -19,6 +20,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     on<UpdateRadioSelectionEvent>(_onUpdateRadioSelection);
     on<ExportDocumentEvent>(_onExportDocument);
     on<ShareReportEvent>(_onShareReport);
+    on<SendReportEvent>(_onSendEmail);
   }
 
   Future<void> _onLoadInitialData(
@@ -109,49 +111,38 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     }
   }
 
-  Future<void> _onExportDocument(
-      ExportDocumentEvent event,
+  Future<void> _onSendEmail(
+      SendReportEvent event,
       Emitter<IncidentState> emit,
       ) async {
+    final previousState = state;
+
     try {
-      final previousState = state;
-      if (previousState is! IncidentLoaded) return;
-      final data = await rootBundle.load('assets/Incident report.docx');
-      final bytes = data.buffer.asUint8List();
-
-      // Save the template to a writable directory
-      final directory = await getApplicationDocumentsDirectory();
-      final fileDoc = File('${directory.path}/Document.docx');
-      await fileDoc.writeAsBytes(bytes);
-
-      // Load the document for modification
-      final docx = await DocxTemplate.fromBytes(await fileDoc.readAsBytes());
-
-      // Prepare content
-      final content = _prepareDocumentContent(event.formData, event.imageFile);
-
-      // Generate document
-      final generatedDoc = await docx.generate(content);
-      if (generatedDoc == null) {
-        throw Exception("Failed to generate document");
-      }
-
-      // Save to Documents folder
-      final outputDir = Directory('/storage/emulated/0/Documents');
-      if (!outputDir.existsSync()) {
-        outputDir.createSync(recursive: true);
-      }
-
-      final outputFile = File(
-          '${outputDir.path}/Incident report - ${event.formData['locationName']}.docx'
+      // First, export the document
+      final outputFilePath = await _exportDocumentAndGetPath(
+          event.formData,
+          event.imageFile
       );
-      await outputFile.writeAsBytes(generatedDoc);
 
-      emit(DocumentExported(outputFile.path));
-      emit(previousState);
+      // Create a File from the path
+      final documentFile = File(outputFilePath);
+
+      // Now send the email with the exported document
+      final emailContent = _generateAuditEmailContent(event.formData);
+      await _sendViaOutlook(
+        subject: 'Incident Report - ${event.formData['locationName']}',
+        body: emailContent,
+        recipients: [],
+        attachment: documentFile,
+      );
+
+      // Emit success state
+
     } catch (e) {
+      emit(IncidentError('Failed to share incident report: $e'));
       print(e.toString());
-      emit(IncidentError('Failed to export document: $e'));
+      emit(previousState);
+
     }
   }
 
@@ -197,6 +188,101 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     }
 
     return content;
+  }
+
+// This function extracts the document exporting logic from _onExportDocument
+  Future<String> _exportDocumentAndGetPath(
+      Map<String, dynamic> formData,
+      File? imageFile,
+      ) async {
+    final data = await rootBundle.load('assets/Incident report.docx');
+    final bytes = data.buffer.asUint8List();
+
+    // Save the template to a writable directory
+    final directory = await getApplicationDocumentsDirectory();
+    final fileDoc = File('${directory.path}/Document.docx');
+    await fileDoc.writeAsBytes(bytes);
+
+    // Load the document for modification
+    final docx = await DocxTemplate.fromBytes(await fileDoc.readAsBytes());
+
+    // Prepare content
+    final content = _prepareDocumentContent(formData, imageFile);
+
+    // Generate document
+    final generatedDoc = await docx.generate(content);
+    if (generatedDoc == null) {
+      throw Exception("Failed to generate document");
+    }
+
+    // Save to Documents folder
+    final outputDir = Directory('/storage/emulated/0/Documents');
+    if (!outputDir.existsSync()) {
+      outputDir.createSync(recursive: true);
+    }
+
+    final outputFile = File(
+        '${outputDir.path}/Incident report - ${formData['locationName']}.docx'
+    );
+    await outputFile.writeAsBytes(generatedDoc);
+
+    return outputFile.path;
+  }
+
+// Keep your existing _onExportDocument method but modify it to use the extracted function
+  Future<void> _onExportDocument(
+      ExportDocumentEvent event,
+      Emitter<IncidentState> emit,
+      ) async {
+    final previousState = state;
+
+    try {
+      final previousState = state;
+      if (previousState is! IncidentLoaded) return;
+
+      final outputFilePath = await _exportDocumentAndGetPath(
+          event.formData,
+          event.imageFile
+      );
+
+      emit(DocumentExported(outputFilePath));
+      emit(previousState);
+    } catch (e) {
+      print(e.toString());
+      emit(IncidentError('Failed to export document: $e'));
+      emit(previousState);
+
+    }
+  }
+
+  String _generateAuditEmailContent(Map<String, dynamic> formData) {
+    final buffer = StringBuffer();
+
+    buffer.writeln('Dears,\n\n   Please check the incident report for: ${formData['locationName']}.\n\nBest Regards\n${formData['socMember']}\nSoc team\n 01002089999');
+
+
+    return buffer.toString();
+  }
+
+  Future<void> _sendViaOutlook({
+    required String subject,
+    required String body,
+    required List<String> recipients,
+    File? attachment,
+  }) async {
+    try {
+      final Email email = Email(
+        body: body,
+        subject: subject,
+        recipients: recipients,
+        attachmentPaths: attachment != null ? [attachment.path] : [],
+        isHTML: false,
+      );
+
+      await FlutterEmailSender.send(email);
+    } catch (e) {
+      throw Exception('Failed to send email: $e');
+    }
   }
 
   Future<void> _onShareReport(

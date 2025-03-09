@@ -38,8 +38,6 @@ dependencies:
   share_plus: ^10.1.1
   docx_template: ^0.4.0
   path_provider: ^2.1.4
-  permission_handler: ^11.3.1
-  shared_preferences: ^2.3.2
   image_picker: ^1.1.2
   flutter_bloc: ^9.0.0
   get_it: ^8.0.3
@@ -47,6 +45,7 @@ dependencies:
   equatable: ^2.0.7
   sqflite: ^2.3.0
   path: ^1.8.3
+  flutter_email_sender: ^6.0.0
 
 
 dev_dependencies:

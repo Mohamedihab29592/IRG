@@ -120,31 +120,47 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     try {
       // First, export the document
       final outputFilePath = await _exportDocumentAndGetPath(
-          event.formData,
-          event.imageFile
+        event.formData,
+        event.imageFile,
       );
 
       // Create a File from the path
       final documentFile = File(outputFilePath);
 
-      // Now send the email with the exported document
+      // Determine recipients and CC based on locationName
+      List<String> recipients = [];
+      List<String> ccRecipients = [];
+
+      final String locationTypes = event.formData['locationType'];
+
+      if (locationTypes == 'Express' || locationTypes == 'Franchise') {
+        recipients = ['RetailPartnershipManagementRelationTeam@vodafone.com.eg'];
+        ccRecipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg'];
+      }  else {
+        recipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg'];
+      }
+
+      // Generate email content
       final emailContent = _generateAuditEmailContent(event.formData);
+
+      // Send email
       await _sendViaOutlook(
         subject: 'Incident Report - ${event.formData['locationName']}',
         body: emailContent,
-        recipients: [],
+        recipients: recipients,
+        ccRecipients: ccRecipients,
         attachment: documentFile,
       );
 
-      // Emit success state
+      // Emit success state if needed
 
     } catch (e) {
       emit(IncidentError('Failed to share incident report: $e'));
       print(e.toString());
       emit(previousState);
-
     }
   }
+
 
   Content _prepareDocumentContent(Map<String, dynamic> formData, File? imageFile) {
 
@@ -258,7 +274,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   String _generateAuditEmailContent(Map<String, dynamic> formData) {
     final buffer = StringBuffer();
 
-    buffer.writeln('Dears,\n\n   Please check the incident report for: ${formData['locationName']}.\n\nBest Regards\n${formData['socMember']}\nSoc team\n 01002089999');
+    buffer.writeln('Dears,\n\n   Please check the incident report for: ${formData['locationName']}.\n\nBest Regards\n${formData['socMember']}');
 
 
     return buffer.toString();
@@ -268,6 +284,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     required String subject,
     required String body,
     required List<String> recipients,
+    required List<String> ccRecipients,
     File? attachment,
   }) async {
     try {
@@ -275,6 +292,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
         body: body,
         subject: subject,
         recipients: recipients,
+        cc:ccRecipients ,
         attachmentPaths: attachment != null ? [attachment.path] : [],
         isHTML: false,
       );

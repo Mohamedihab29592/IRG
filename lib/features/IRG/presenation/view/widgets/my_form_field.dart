@@ -80,26 +80,23 @@ class _MyFormFieldState extends State<MyFormField> {
   void _updateFilteredItems(String searchValue) {
     setState(() {
       if (searchValue.isEmpty) {
-        _filteredItems = widget.menuItems ?? [];
+        _filteredItems = List.from(widget.menuItems ?? []); // Create a new mutable list
       } else {
         _isMenuOpen = true;
-
-        _filteredItems = (widget.menuItems ?? [])
-            .where((item) =>
-            item.name.toLowerCase().contains(searchValue.toLowerCase()))
-            .toList();
+        _filteredItems = List.from(widget.menuItems ?? []).where((item) =>
+            item.name.toLowerCase().contains(searchValue.toLowerCase())).toList();
       }
 
-      // Additional filtering based on dependent value if it exists
       if (widget.dependentValue != null) {
-        _filteredItems = _filteredItems
-            .where((item) => item.locationTypeId.toString() == widget.dependentValue)
-            .toList();
+        _filteredItems = _filteredItems.where((item) =>
+        item.locationTypeId.toString() == widget.dependentValue).toList();
       }
 
+      // Create a new list before adding an item
       if (_filteredItems.isEmpty) {
-        _filteredItems.add(LocationModel(
-            name: 'No locations found', id: 0, locationTypeId: 0));
+        _filteredItems = [
+          LocationModel(name: 'No locations found', id: 0, locationTypeId: 0)
+        ];
       }
     });
   }
@@ -125,12 +122,17 @@ class _MyFormFieldState extends State<MyFormField> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
+
                   keyboardType: widget.textType,
                   textCapitalization: TextCapitalization.sentences,
                   autocorrect: widget.enableSpellCheck,
                   enableSuggestions: widget.enableSpellCheck,
-                  onTap: widget.onTap,
-                  readOnly: widget.isReadonly,
+                  onTap: () {
+                    if (widget.showDownMenu) {
+                      _toggleMenu(); // Open menu when clicking on field
+                    }
+                    widget.onTap?.call();
+                  },                  readOnly: widget.isReadonly,
                   validator: widget.validator ??
                       (value) {
                         if ((value == null || value.isEmpty) &&
@@ -177,6 +179,7 @@ class _MyFormFieldState extends State<MyFormField> {
                       ],
                     ),
                   ),
+
                   onChanged: (value) {
                     if (widget.showDownMenu) {
                       _updateFilteredItems(value);
@@ -184,6 +187,7 @@ class _MyFormFieldState extends State<MyFormField> {
                     widget.onChange?.call(value);
 
                   }),
+
               if (_isMenuOpen &&
                   widget.showDownMenu &&
                   _filteredItems.isNotEmpty)

@@ -97,7 +97,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   detailsController: detailsController,
                   cstNamesController: cstNamesController,
                   cstIDController: cstIDController,
-                  actionController: cstIDController,
+                  actionController: actionController,
                   closureController: closureController,
                   socMemberController: socMemberController,
                   addressController: addressController,
@@ -1104,7 +1104,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   context.read<IncidentBloc>().add(SendReportEvent(
                     formData: {
                       'socMember': socMemberController.text,
-
+                      'locationType': typeController.text,
                       "date": dateController.text,
                       "type": incidentTypeController.text,
                       "time": timeController.text,

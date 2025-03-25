@@ -1,0 +1,2 @@
+/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/.cxx/RelWithDebInfo/3d1d165a/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+/Users/mohamedihab/StudioProjects/incident_report_genartor/android/app/.cxx/RelWithDebInfo/3d1d165a/armeabi-v7a/CMakeFiles/edit_cache.dir

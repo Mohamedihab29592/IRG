@@ -12,12 +12,16 @@ class IncidentLoaded extends IncidentState {
   final Map<String, dynamic> formData;
   final Map<String, YesNo> radioSelections;
   final List<dynamic> locationFilterItems;
+  final String? translatedText;
+  final bool isTranslating;
 
   IncidentLoaded({
     required this.lookupData,
     required this.formData,
     required this.radioSelections,
     required this.locationFilterItems,
+    this.translatedText,
+    this.isTranslating = false,
   });
 
   IncidentLoaded copyWith({
@@ -25,12 +29,16 @@ class IncidentLoaded extends IncidentState {
     Map<String, dynamic>? formData,
     Map<String, YesNo>? radioSelections,
     List<dynamic>? locationFilterItems,
+    String? translatedText,
+    bool? isTranslating,
   }) {
     return IncidentLoaded(
       lookupData: lookupData ?? this.lookupData,
       formData: formData ?? this.formData,
       radioSelections: radioSelections ?? this.radioSelections,
       locationFilterItems: locationFilterItems ?? this.locationFilterItems,
+      translatedText: translatedText ?? this.translatedText,
+      isTranslating: isTranslating ?? this.isTranslating,
     );
   }
 }
@@ -44,6 +52,8 @@ class DocumentExported extends IncidentState {
   final String path;
   DocumentExported(this.path);
 }
+
+
 
 
 

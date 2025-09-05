@@ -108,10 +108,10 @@ class DatabaseHelper {
       "Owned",
       "Express",
       "Switch",
-      "DC",
       "Warehouse",
       "Franchise",
       "Apartment",
+      "Truck",
       "Other"
     ]) {
       await db.insert('location_types', {'name': type});
@@ -501,6 +501,8 @@ class DatabaseHelper {
       "Tanta Apartment"
     ]);
 
+    await _insertLocationsForType(db, "Truck", [""]);
+
 
     // Insert action items
     for (String action in [
@@ -539,7 +541,7 @@ class DatabaseHelper {
       await db.insert('soc_team', {'name': member});
     }
 
-    // Insert incident details
+  /*  // Insert incident details
     for (String detail in [
       "A disgruntled customer asked to ",
       "A disgruntled customer refused to wait queue ",
@@ -548,7 +550,7 @@ class DatabaseHelper {
       "A Police officer asked to review CCTV records for an ongoing investigation ",
     ]) {
       await db.insert('incident_details', {'name': detail});
-    }
+    }*/
 
     // Insert closure status options
     for (String status in ["In Progress", "Case closed", "Case closed after reconciliation"]) {

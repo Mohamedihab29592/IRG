@@ -46,6 +46,7 @@ dependencies:
   sqflite: ^2.3.0
   path: ^1.8.3
   flutter_email_sender: ^6.0.0
+  translator: ^0.1.7
 
 
 dev_dependencies:

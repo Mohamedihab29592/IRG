@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:IRG/core/constants/enum.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ var reporterController = TextEditingController();
 var reporterNameController = TextEditingController();
 var reporterIdController = TextEditingController();
 var detailsController = TextEditingController();
+var detailsArabicController = TextEditingController();
 var cstNamesController = TextEditingController();
 var cstIDController = TextEditingController();
 var actionController = TextEditingController();
@@ -39,6 +41,7 @@ var guardAttackDController = TextEditingController();
 class _IncidentReportFormState extends State<IncidentReportForm> {
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
+
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -62,18 +65,43 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
     });
   }
 
+  void _translateArabicToEnglish() {
+    if (detailsArabicController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please enter Arabic text to translate"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
 
+
+    // Trigger translation immediately
+    context.read<IncidentBloc>().add(
+      TranslateDetailsEvent(
+        text: detailsArabicController.text,
+        isFromArabic: true,
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<IncidentBloc, IncidentState>(
       listener: (context, state) {
-        if(state is IncidentError)
+        if (state is IncidentLoaded && state.translatedText != null) {
+          if (detailsArabicController.text.isNotEmpty) {
+            detailsController.text = state.translatedText!;
+          }
+        }
+
+       else if(state is IncidentError)
         {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text(state.message)),
           );        }
-        if (state is DocumentExported) {
+        else if (state is DocumentExported) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('File saved successfully in ${state.path}')),
@@ -95,6 +123,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   reporterController: reporterController,
                   reporterNameController: reporterNameController,
                   detailsController: detailsController,
+                  detailsArabicController: detailsArabicController,
                   cstNamesController: cstNamesController,
                   cstIDController: cstIDController,
                   actionController: actionController,
@@ -135,7 +164,6 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
             children: [
               //Location type
               MyFormField(
-
                 validator: (value) => null,
                 hint: "",
                 showDownMenu: true,
@@ -220,8 +248,16 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               ),
               //Address
               MyFormField(
-                validator: (value) => null,
-                title: "Address (Optional)",
+                validator: (value) {
+                  if(typeController.text.contains('Truck') && value!.isEmpty)
+                    {
+                      return "* Required";
+                    }
+                  else {
+                    return null;
+                  }
+                },
+                title: "Address",
                 hint: "",
                 controller: addressController,
               ),
@@ -265,13 +301,93 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               SizedBox(
                 height: 20,
               ),
+              //Arabic Details for Share only
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MyFormField(
+                    enableSpellCheck: true,
+                    controller: detailsArabicController,
+                    title: 'Details in Arabic (share only)',
+                    hint: 'اكتب التفاصيل بالعربية',
+                    validator: (value) => null,
+                    onChange: (value) {
+                     setState(() {
+
+                     });
+                    },
+                  ),
+
+                  SizedBox(height: 10),
+
+                  // Translate Button
+                  Row(
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: detailsArabicController.text.isNotEmpty && !state.isTranslating
+                            ? () => _translateArabicToEnglish()
+                            : null,
+                        icon: state.isTranslating
+                            ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                            : Icon(Icons.translate),
+                        label: Text(state.isTranslating ? 'Translating...' : 'Translate to English'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      // Clear buttonjl hg
+                      TextButton.icon(
+                        onPressed: detailsArabicController.text.isNotEmpty
+                            ? () {
+                          setState(() {
+                            detailsArabicController.clear();
+                            detailsController.clear();
+                          });
+                        }
+                            : null,
+                        icon: Icon(Icons.clear),
+                        label: Text('Clear'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  if (state.isTranslating)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'Please wait while translating...',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
               //Details
               MyFormField(
+                validator: (value) => null, // Optional field
                 enableSpellCheck: true,
-                showDownMenu: true,
                 controller: detailsController,
                 title: ' Details',
-                menuItems: state.lookupData.incidentDetails,
+
+
               ),
               SizedBox(
                 height: 20,
@@ -1016,16 +1132,32 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                 height: 20,
               ),
               //Share
-              Button( onPressed: () {
+              Button(
+                onPressed: () {
                 if (_formKey.currentState!.validate()) {
+                  if ((typeController.text.toLowerCase() == 'truck' ||
+                      typeController.text.toLowerCase().contains('truck')) &&
+                      addressController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            "Address is required for truck locations"),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                    return;
+                  }
                   context
                       .read<IncidentBloc>()
                       .add(ShareReportEvent(formData: {
                     'customerName': cstNamesController.text,
                     'customerId': cstIDController.text,
                     'locationName': locationController.text,
+                    'address': addressController.text,
                     'reporterName': reporterNameController.text,
-                    'details': detailsController.text,
+                    'details': detailsArabicController.text.isNotEmpty
+                        ? detailsArabicController.text
+                        : detailsController.text,
                     'socAction': actionController.text,
                     'closure': closureController.text,
                     'socMember': socMemberController.text,

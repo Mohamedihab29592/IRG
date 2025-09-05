@@ -6,12 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:translator/translator.dart';
 import '../../../../core/constants/enum.dart';
 import '../../domain/repo.dart';
 import 'events.dart';
 
 class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   final IncidentRepository repository;
+  final translator = GoogleTranslator();
 
   IncidentBloc({required this.repository}) : super(IncidentInitial()) {
     on<LoadInitialDataEvent>(_onLoadInitialData);
@@ -21,6 +23,8 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     on<ExportDocumentEvent>(_onExportDocument);
     on<ShareReportEvent>(_onShareReport);
     on<SendReportEvent>(_onSendEmail);
+    on<TranslateDetailsEvent>(_onTranslateDetails);
+
   }
 
   Future<void> _onLoadInitialData(
@@ -135,9 +139,11 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
       if (locationTypes == 'Express' || locationTypes == 'Franchise') {
         recipients = ['RetailPartnershipManagementRelationTeam@vodafone.com.eg'];
-        ccRecipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg'];
+        ccRecipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg','saad.el-moselhy@vodafone.com.eg','amr.elkhateeb@vodafone.com.eg'];
       }  else {
         recipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg'];
+        ccRecipients = ['saad.el-moselhy@vodafone.com.eg','amr.elkhateeb@vodafone.com.eg'];
+
       }
 
       // Generate email content
@@ -320,6 +326,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
     // Add required fields
     buffer.writeln('Incident Location: ${formData['locationName']}.\n');
+    buffer.writeln('Address: ${formData['address']}.\n');
     buffer.writeln('Reporter: ${formData['reporterName']}.\n');
     buffer.writeln('Details: ${formData['details']}.\n');
 
@@ -351,4 +358,61 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
     return buffer.toString();
   }
-}
+
+
+  Future<void> _onTranslateDetails(
+      TranslateDetailsEvent event,
+      Emitter<IncidentState> emit,
+      ) async {
+    if (state is IncidentLoaded) {
+      final currentState = state as IncidentLoaded;
+
+      // Show loading state
+      emit(currentState.copyWith(isTranslating: true));
+
+      try {
+        if (event.text.isEmpty) {
+          emit(currentState.copyWith(
+            translatedText: '',
+            isTranslating: false,
+          ));
+          return;
+        }
+
+        // Only translate from Arabic to English
+        if (!event.isFromArabic) {
+          // If text is not from Arabic field, don't translate
+          emit(currentState.copyWith(isTranslating: false));
+          return;
+        }
+
+        // Translate from Arabic to English only
+        final translation = await translator.translate(
+          event.text,
+          from: 'ar',
+          to: 'en',
+        );
+
+        emit(currentState.copyWith(
+          translatedText: translation.text,
+          isTranslating: false,
+        ));
+      } catch (e) {
+        print('Translation error: $e');
+        emit(currentState.copyWith(
+          isTranslating: false,
+        ));
+        // Show error briefly
+        emit(IncidentError('Translation failed: $e'));
+        // Return to previous state after showing error
+        await Future.delayed(Duration(milliseconds: 100));
+        emit(currentState.copyWith(isTranslating: false));
+      }
+    }
+  }
+
+
+
+  }
+
+

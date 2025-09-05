@@ -8,6 +8,7 @@ AppBar AppbarWidget({
   required TextEditingController reporterController,
   required TextEditingController reporterNameController,
   required TextEditingController detailsController,
+  required TextEditingController detailsArabicController,
   required TextEditingController cstNamesController,
   required TextEditingController cstIDController,
   required TextEditingController actionController,
@@ -46,6 +47,7 @@ AppBar AppbarWidget({
             reporterController.clear();
             reporterNameController.clear();
             detailsController.clear();
+            detailsArabicController.clear();
             cstNamesController.clear();
             cstIDController.clear();
             actionController.clear();

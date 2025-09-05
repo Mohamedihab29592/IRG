@@ -60,3 +60,19 @@ class SendReportEvent extends IncidentEvent {
   final File? imageFile;
   SendReportEvent({required this.formData,required this.imageFile});
 }
+
+class TranslateDetailsEvent extends IncidentEvent {
+  final String text;
+  final bool isFromArabic;
+
+   TranslateDetailsEvent({
+    required this.text,
+    required this.isFromArabic,
+  });
+
+
+}
+
+
+
+

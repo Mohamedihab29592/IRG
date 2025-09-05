@@ -29,7 +29,6 @@ class MyFormField extends StatefulWidget {
     Key? key,
     this.enableSpellCheck = false,
     this.textType = TextInputType.text,
-
     this.isPassword = false,
     this.radius = 15,
     this.isReadonly = false,

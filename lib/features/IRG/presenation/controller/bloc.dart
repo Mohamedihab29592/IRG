@@ -140,9 +140,13 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       if (locationTypes == 'Express' || locationTypes == 'Franchise') {
         recipients = ['RetailPartnershipManagementRelationTeam@vodafone.com.eg'];
         ccRecipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg','saad.el-moselhy@vodafone.com.eg','amr.elkhateeb@vodafone.com.eg'];
-      }  else {
+      }  else if (locationTypes == 'Owned' ){
         recipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg'];
         ccRecipients = ['saad.el-moselhy@vodafone.com.eg','amr.elkhateeb@vodafone.com.eg'];
+
+      }
+      else {
+        recipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg'];
 
       }
 

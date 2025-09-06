@@ -57,12 +57,22 @@ class _MyFormFieldState extends State<MyFormField> {
   List<dynamic> _filteredItems = [];
   Set<String> _selectedItems = Set(); // Initialize selected items set
   bool _isMenuOpen = false;
-
+  void _onControllerChanged() {
+    // If controller is empty and we have selected items, clear them
+    if (_textFieldController.text.isEmpty && _selectedItems.isNotEmpty) {
+      setState(() {
+        _selectedItems.clear();
+        _isMenuOpen = false;
+      });
+    }
+  }
   @override
   void initState() {
     super.initState();
     _textFieldController = widget.controller ?? TextEditingController();
     _filteredItems = widget.menuItems ?? [];
+    _textFieldController.addListener(_onControllerChanged);
+
   }
   @override
   void didUpdateWidget(MyFormField oldWidget) {

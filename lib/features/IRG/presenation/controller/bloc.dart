@@ -23,21 +23,23 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     on<ExportDocumentEvent>(_onExportDocument);
     on<ShareReportEvent>(_onShareReport);
     on<SendReportEvent>(_onSendEmail);
+    on<SendReportYourSelfEvent>(_onSendEmailYourSelf);
     on<TranslateDetailsEvent>(_onTranslateDetails);
-
   }
 
   Future<void> _onLoadInitialData(
-      LoadInitialDataEvent event,
-      Emitter<IncidentState> emit,
-      ) async {
+    LoadInitialDataEvent event,
+    Emitter<IncidentState> emit,
+  ) async {
     emit(IncidentLoading());
     try {
       final result = await repository.getAllLookupData();
       result.fold(
-            (error) {emit(IncidentError(error));
-              print(error.toString());} ,
-            (data) => emit(IncidentLoaded(
+        (error) {
+          emit(IncidentError(error));
+          print(error.toString());
+        },
+        (data) => emit(IncidentLoaded(
           lookupData: data,
           formData: {},
           radioSelections: _getDefaultRadioSelections(),
@@ -66,9 +68,9 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   }
 
   void _onUpdateIncidentType(
-      UpdateIncidentTypeEvent event,
-      Emitter<IncidentState> emit,
-      ) {
+    UpdateIncidentTypeEvent event,
+    Emitter<IncidentState> emit,
+  ) {
     if (state is IncidentLoaded) {
       final currentState = state as IncidentLoaded;
       final newFormData = Map<String, dynamic>.from(currentState.formData)
@@ -78,19 +80,19 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   }
 
   void _onUpdateLocationType(
-      UpdateLocationTypeEvent event,
-      Emitter<IncidentState> emit,
-      ) async {
+    UpdateLocationTypeEvent event,
+    Emitter<IncidentState> emit,
+  ) async {
     print('Updating location type to: ${event.locationType}');
 
     final result = await repository.getLocationsByType(event.locationType);
 
     result.fold(
-          (error) {
+      (error) {
         print('Error getting locations: $error');
         emit(IncidentError(error));
       },
-          (locationList) {
+      (locationList) {
         print('Got locations: ${locationList.map((l) => l.name).toList()}');
         // Update state
         if (state is IncidentLoaded) {
@@ -104,13 +106,14 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   }
 
   void _onUpdateRadioSelection(
-      UpdateRadioSelectionEvent event,
-      Emitter<IncidentState> emit,
-      ) {
+    UpdateRadioSelectionEvent event,
+    Emitter<IncidentState> emit,
+  ) {
     if (state is IncidentLoaded) {
       final currentState = state as IncidentLoaded;
-      final newSelections = Map<String, YesNo>.from(currentState.radioSelections)
-        ..[event.key] = event.value;
+      final newSelections =
+          Map<String, YesNo>.from(currentState.radioSelections)
+            ..[event.key] = event.value;
       emit(currentState.copyWith(radioSelections: newSelections));
     }
   }
@@ -136,18 +139,57 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       List<String> ccRecipients = [];
 
       final String locationTypes = event.formData['locationType'];
+      final String ? leaName = event.formData['leaMemberName'];
+
+      // Define LEA member email mapping
+      final Map<String, String> leaMemberEmails = {
+        'Akram Ali': 'akram.ali@vodafone.com.eg',
+        'Ahmed ElDesouky': 'ahmed.eldesouky@vodafone.com.eg',
+        'Ahmed Aly': 'ahmed.aly@vodafone.com.eg',
+        'Mohamed Mansy': 'mohamed.mansy@vodafone.com.eg',
+        'Momen Sayed': 'momen.sayed@vodafone.com.eg',
+        'Tarek El Nagar': 'tarek.elnagar@vodafone.com.eg',
+      };
+
 
       if (locationTypes == 'Express' || locationTypes == 'Franchise') {
-        recipients = ['RetailPartnershipManagementRelationTeam@vodafone.com.eg'];
-        ccRecipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg','saad.el-moselhy@vodafone.com.eg','amr.elkhateeb@vodafone.com.eg'];
-      }  else if (locationTypes == 'Owned' ){
-        recipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg'];
-        ccRecipients = ['saad.el-moselhy@vodafone.com.eg','amr.elkhateeb@vodafone.com.eg'];
-
+        recipients = [
+          'RetailPartnershipManagementRelationTeam@vodafone.com.eg'
+        ];
+        ccRecipients = [
+          'tarek.raslan@vodafone.com.eg',
+          'mohamed.aboul-ezz@vodafone.com.eg',
+          'saad.el-moselhy@vodafone.com.eg',
+          'amr.elkhateeb@vodafone.com.eg'
+        ];
+      } else if (locationTypes == 'Owned') {
+        recipients = [
+          'tarek.raslan@vodafone.com.eg',
+          'mohamed.aboul-ezz@vodafone.com.eg'
+        ];
+        ccRecipients = [
+          'saad.el-moselhy@vodafone.com.eg',
+          'amr.elkhateeb@vodafone.com.eg',
+          'amr.abdelaziz@vodafone.com.eg'
+        ];
+      } else if (locationTypes == 'Building') {
+        recipients = [
+          'tarek.raslan@vodafone.com.eg',
+          'mohamed.aboul-ezz@vodafone.com.eg'
+        ];
+        ccRecipients = ['kamel.okko@vodafone.com.eg'];
       }
-      else {
-        recipients = ['tarek.raslan@vodafone.com.eg','mohamed.aboul-ezz@vodafone.com.eg'];
 
+      if (leaName != null && leaName.isNotEmpty && leaName != '') {
+        final leaEmail = leaMemberEmails[leaName];
+        if (leaEmail != null) {
+          ccRecipients.add(leaEmail);
+        }
+      }
+
+      final String? legalNotified = event.formData['legal'];
+      if (legalNotified == 'Yes') {
+        ccRecipients.add('Tamer.Wahba@vodafone.com.eg');
       }
 
       // Generate email content
@@ -163,7 +205,6 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       );
 
       // Emit success state if needed
-
     } catch (e) {
       emit(IncidentError('Failed to share incident report: $e'));
       print(e.toString());
@@ -171,9 +212,65 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     }
   }
 
+  Future<void> _onSendEmailYourSelf(
+    SendReportYourSelfEvent event,
+    Emitter<IncidentState> emit,
+  ) async {
+    final previousState = state;
 
-  Content _prepareDocumentContent(Map<String, dynamic> formData, File? imageFile) {
+    try {
+      // First, export the document
+      final outputFilePath = await _exportDocumentAndGetPath(
+        event.formData,
+        event.imageFile,
+      );
 
+      // Create a File from the path
+      final documentFile = File(outputFilePath);
+
+      // Determine recipients and CC based on locationName
+      List<String> recipients = [];
+
+      final String memberName = event.formData['socMember'];
+      final Map<String, String> ? socEmails = {
+        'Mohamed Abo Elez': 'mohamed.aboul-ezz@vodafone.com.eg',
+        'Ahmed Hamdy': 'ahmed.hamdyali1@vodafone.com.eg',
+        'Ahmed Aly': 'ahmed.aly@vodafone.com.eg',
+        'Mohamed Ihab': 'mohamed.ehabahmed2@vodafone.com.eg',
+        'Ahmed Hassan': 'ahmed.Elsherif@vodafone.com.eg',
+        'Karim Abo Ela': 'Karim.AbolEla@vodafone.com.eg',
+        'Hady Khalifa': 'ady.Sayed-Ibrahim@vodafone.com.eg',
+      };
+
+      if (socEmails != null && socEmails.isNotEmpty && socEmails != '') {
+        final socEmail = socEmails[memberName];
+        if (socEmail != null) {
+          recipients.add(socEmail);
+        }
+      }
+
+      // Generate email content
+      final emailContent = _generateAuditEmailContent(event.formData);
+
+      // Send email
+      await _sendViaOutlook(
+        subject: 'Incident Report - ${event.formData['locationName']}',
+        body: emailContent,
+        recipients: recipients,
+        ccRecipients: [],
+        attachment: documentFile,
+      );
+
+      // Emit success state if needed
+    } catch (e) {
+      emit(IncidentError('Failed to share incident report: $e'));
+      print(e.toString());
+      emit(previousState);
+    }
+  }
+
+  Content _prepareDocumentContent(
+      Map<String, dynamic> formData, File? imageFile) {
     Content content = Content()
       ..add(TextContent('date', formData['date']))
       ..add(TextContent('type', formData['type']))
@@ -185,7 +282,8 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       ..add(TextContent('staff id', formData['staffId']))
       ..add(TextContent('customer name', formData['customerName']))
       ..add(TextContent('customer id', formData['customerId']))
-      ..add(TextContent('soc action', 'Case reported to ${formData['socAction']}'))
+      ..add(TextContent(
+          'soc action', 'Case reported to ${formData['socAction']}'))
       ..add(TextContent('damaged', formData['damaged']))
       ..add(TextContent('injured', formData['injured']))
       ..add(TextContent('vendor', formData['vendor']))
@@ -202,9 +300,6 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       ..add(TextContent('closure', formData['closure']))
       ..add(TextContent('details', formData['details']));
 
-
-
-
     // Add image if available
     if (imageFile != null && imageFile.existsSync()) {
       final imageBytes = imageFile.readAsBytesSync();
@@ -218,9 +313,9 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
 // This function extracts the document exporting logic from _onExportDocument
   Future<String> _exportDocumentAndGetPath(
-      Map<String, dynamic> formData,
-      File? imageFile,
-      ) async {
+    Map<String, dynamic> formData,
+    File? imageFile,
+  ) async {
     final data = await rootBundle.load('assets/Incident report.docx');
     final bytes = data.buffer.asUint8List();
 
@@ -248,8 +343,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     }
 
     final outputFile = File(
-        '${outputDir.path}/Incident report - ${formData['locationName']}.docx'
-    );
+        '${outputDir.path}/Incident report - ${formData['locationName']}.docx');
     await outputFile.writeAsBytes(generatedDoc);
 
     return outputFile.path;
@@ -257,19 +351,17 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
 // Keep your existing _onExportDocument method but modify it to use the extracted function
   Future<void> _onExportDocument(
-      ExportDocumentEvent event,
-      Emitter<IncidentState> emit,
-      ) async {
+    ExportDocumentEvent event,
+    Emitter<IncidentState> emit,
+  ) async {
     final previousState = state;
 
     try {
       final previousState = state;
       if (previousState is! IncidentLoaded) return;
 
-      final outputFilePath = await _exportDocumentAndGetPath(
-          event.formData,
-          event.imageFile
-      );
+      final outputFilePath =
+          await _exportDocumentAndGetPath(event.formData, event.imageFile);
 
       emit(DocumentExported(outputFilePath));
       emit(previousState);
@@ -277,15 +369,14 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       print(e.toString());
       emit(IncidentError('Failed to export document: $e'));
       emit(previousState);
-
     }
   }
 
   String _generateAuditEmailContent(Map<String, dynamic> formData) {
     final buffer = StringBuffer();
 
-    buffer.writeln('Dears,\n\n   Please check the incident report for: ${formData['locationName']}.\n\nBest Regards\n${formData['socMember']}');
-
+    buffer.writeln(
+        'Dears,\n\n   Please check the incident report for: ${formData['locationName']}.\n\nBest Regards\n${formData['socMember']}');
 
     return buffer.toString();
   }
@@ -302,7 +393,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
         body: body,
         subject: subject,
         recipients: recipients,
-        cc:ccRecipients ,
+        cc: ccRecipients,
         attachmentPaths: attachment != null ? [attachment.path] : [],
         isHTML: false,
       );
@@ -314,9 +405,9 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   }
 
   Future<void> _onShareReport(
-      ShareReportEvent event,
-      Emitter<IncidentState> emit,
-      ) async {
+    ShareReportEvent event,
+    Emitter<IncidentState> emit,
+  ) async {
     try {
       final text = _generateShareText(event.formData);
       await Share.share(text);
@@ -346,11 +437,13 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
     // Add other optional fields
     if (formData['guardAttackDetails']?.isNotEmpty == true) {
-      buffer.writeln('Guard Attack Details: ${formData['guardAttackDetails']}.\n');
+      buffer.writeln(
+          'Guard Attack Details: ${formData['guardAttackDetails']}.\n');
     }
 
     if (formData['policeReportNumber']?.isNotEmpty == true) {
-      buffer.writeln('Police Report Number: ${formData['policeReportNumber']}.\n');
+      buffer.writeln(
+          'Police Report Number: ${formData['policeReportNumber']}.\n');
     }
 
     if (formData['leaMemberName']?.isNotEmpty == true) {
@@ -363,11 +456,10 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     return buffer.toString();
   }
 
-
   Future<void> _onTranslateDetails(
-      TranslateDetailsEvent event,
-      Emitter<IncidentState> emit,
-      ) async {
+    TranslateDetailsEvent event,
+    Emitter<IncidentState> emit,
+  ) async {
     if (state is IncidentLoaded) {
       final currentState = state as IncidentLoaded;
 
@@ -414,9 +506,4 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       }
     }
   }
-
-
-
-  }
-
-
+}

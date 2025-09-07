@@ -11,8 +11,6 @@ import 'appBar.dart';
 import 'buttons.dart';
 import 'my_form_field.dart';
 
-
-
 class IncidentReportForm extends StatefulWidget {
   @override
   State<IncidentReportForm> createState() => _IncidentReportFormState();
@@ -41,7 +39,7 @@ var guardAttackDController = TextEditingController();
 class _IncidentReportFormState extends State<IncidentReportForm> {
   final _formKey = GlobalKey<FormState>();
   File? _selectedImage;
-
+  bool _isShareAction = false;
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -76,15 +74,15 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
       return;
     }
 
-
     // Trigger translation immediately
     context.read<IncidentBloc>().add(
-      TranslateDetailsEvent(
-        text: detailsArabicController.text,
-        isFromArabic: true,
-      ),
-    );
+          TranslateDetailsEvent(
+            text: detailsArabicController.text,
+            isFromArabic: true,
+          ),
+        );
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<IncidentBloc, IncidentState>(
@@ -93,28 +91,21 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
           if (detailsArabicController.text.isNotEmpty) {
             detailsController.text = state.translatedText!;
           }
-        }
-
-       else if(state is IncidentError)
-        {
+        } else if (state is IncidentError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(state.message)),
-          );        }
-        else if (state is DocumentExported) {
+            SnackBar(content: Text(state.message)),
+          );
+        } else if (state is DocumentExported) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('File saved successfully in ${state.path}')),
+            SnackBar(content: Text('File saved successfully in ${state.path}')),
           );
         }
       },
       builder: (context, state) {
-
-        return   PopScope(
+        return PopScope(
             canPop: false,
             child: SafeArea(
-              child:
-              Scaffold(
+              child: Scaffold(
                 appBar: AppbarWidget(
                   context: context,
                   typeController: typeController,
@@ -137,15 +128,13 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   policeNuController: policeNuController,
                   guardAttackDController: guardAttackDController,
                 ),
-                body:  (state is IncidentLoaded) ? _buildForm(context, state) :Center(child: CircularProgressIndicator.adaptive(),),
-
-
-
+                body: (state is IncidentLoaded)
+                    ? _buildForm(context, state)
+                    : Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
               ),
-            )
-
-
-        );
+            ));
       },
     );
   }
@@ -215,7 +204,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               //Location type
               MyFormField(
                 onTap: () {
-                context.read<IncidentBloc>().add(
+                  context.read<IncidentBloc>().add(
                         UpdateLocationTypeEvent(typeController.text),
                       );
                 },
@@ -229,7 +218,6 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   setState(() {
                     selectedLocationType = value;
                   });
-
                 },
               ),
               SizedBox(
@@ -249,11 +237,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               //Address
               MyFormField(
                 validator: (value) {
-                  if(typeController.text.contains('Truck') && value!.isEmpty)
-                    {
-                      return "* Required";
-                    }
-                  else {
+                  if (typeController.text.contains('Truck') && value!.isEmpty) {
+                    return "* Required";
+                  } else {
                     return null;
                   }
                 },
@@ -290,7 +276,6 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   Expanded(
                     child: MyFormField(
                       textType: TextInputType.number,
-
                       validator: (value) => null,
                       hint: "Staff ID",
                       controller: reporterIdController,
@@ -310,11 +295,14 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                     controller: detailsArabicController,
                     title: 'Details in Arabic (share only)',
                     hint: 'اكتب التفاصيل بالعربية',
-                    validator: (value) => null,
+                    validator: (value) {
+                      if (_isShareAction && (value == null || value.isEmpty)) {
+                        return "Arabic details are required for sharing";
+                      }
+                      return null;
+                    },
                     onChange: (value) {
-                     setState(() {
-
-                     });
+                      setState(() {});
                     },
                   ),
 
@@ -324,24 +312,29 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                   Row(
                     children: [
                       ElevatedButton.icon(
-                        onPressed: detailsArabicController.text.isNotEmpty && !state.isTranslating
+                        onPressed: detailsArabicController.text.isNotEmpty &&
+                                !state.isTranslating
                             ? () => _translateArabicToEnglish()
                             : null,
                         icon: state.isTranslating
                             ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                              )
                             : Icon(Icons.translate),
-                        label: Text(state.isTranslating ? 'Translating...' : 'Translate to English'),
+                        label: Text(state.isTranslating
+                            ? 'Translating...'
+                            : 'Translate to English'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
                           ),
@@ -352,11 +345,11 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                       TextButton.icon(
                         onPressed: detailsArabicController.text.isNotEmpty
                             ? () {
-                          setState(() {
-                            detailsArabicController.clear();
-                            detailsController.clear();
-                          });
-                        }
+                                setState(() {
+                                  detailsArabicController.clear();
+                                  detailsController.clear();
+                                });
+                              }
                             : null,
                         icon: Icon(Icons.clear),
                         label: Text('Clear'),
@@ -382,12 +375,15 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               ),
               //Details
               MyFormField(
-                validator: (value) => null, // Optional field
+                validator: (value) {
+                  if (!_isShareAction && (value == null || value.isEmpty)) {
+                    return "Details are required";
+                  }
+                  return null;
+                },
                 enableSpellCheck: true,
                 controller: detailsController,
                 title: ' Details',
-
-
               ),
               SizedBox(
                 height: 20,
@@ -443,8 +439,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                         value: YesNo.Yes,
                         groupValue: state.radioSelections["equipmentDamaged"],
                         onChanged: (YesNo? value) {
-                          context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("equipmentDamaged", value!));
-
+                          context.read<IncidentBloc>().add(
+                              UpdateRadioSelectionEvent(
+                                  "equipmentDamaged", value!));
                         },
                       ),
                       Text("Yes"),
@@ -456,8 +453,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                         value: YesNo.No,
                         groupValue: state.radioSelections["equipmentDamaged"],
                         onChanged: (YesNo? value) {
-                          context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("equipmentDamaged", value!));
-
+                          context.read<IncidentBloc>().add(
+                              UpdateRadioSelectionEvent(
+                                  "equipmentDamaged", value!));
                         },
                       ),
                       Text("No"),
@@ -480,9 +478,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                         value: YesNo.Yes,
                         groupValue: state.radioSelections["employeeInjured"],
                         onChanged: (YesNo? value) {
-
-                          context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("employeeInjured", value!));
-
+                          context.read<IncidentBloc>().add(
+                              UpdateRadioSelectionEvent(
+                                  "employeeInjured", value!));
                         },
                       ),
                       Text("Yes"),
@@ -494,9 +492,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                         value: YesNo.No,
                         groupValue: state.radioSelections["employeeInjured"],
                         onChanged: (YesNo? value) {
-
-                          context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("employeeInjured", value!));
-
+                          context.read<IncidentBloc>().add(
+                              UpdateRadioSelectionEvent(
+                                  "employeeInjured", value!));
                         },
                       ),
                       Text("No"),
@@ -513,8 +511,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                 children: [
                   Expanded(
                       flex: 2,
-                      child: Text(
-                          "External vendor/Customers/Visitors injured?")),
+                      child:
+                          Text("External vendor/Customers/Visitors injured?")),
                   Spacer(),
                   Expanded(
                     flex: 1,
@@ -524,8 +522,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Yes,
                           groupValue: state.radioSelections["vendorInjured"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("vendorInjured", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "vendorInjured", value!));
                           },
                         ),
                         Text("Yes"),
@@ -540,8 +539,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["vendorInjured"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("vendorInjured", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "vendorInjured", value!));
                           },
                         ),
                         Text("No"),
@@ -568,8 +568,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Yes,
                           groupValue: state.radioSelections["alarmReceived"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("alarmReceived", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "alarmReceived", value!));
                           },
                         ),
                         Text("Yes"),
@@ -584,8 +585,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["alarmReceived"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("alarmReceived", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "alarmReceived", value!));
                           },
                         ),
                         Text("No"),
@@ -600,8 +602,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Not_Relevant,
                           groupValue: state.radioSelections["alarmReceived"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("alarmReceived", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "alarmReceived", value!));
                           },
                         ),
                         Text("Not relevant"),
@@ -628,8 +631,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Yes,
                           groupValue: state.radioSelections["actionSoc"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("actionSoc", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent("actionSoc", value!));
                           },
                         ),
                         Text("Yes"),
@@ -644,8 +647,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["actionSoc"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("actionSoc", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent("actionSoc", value!));
                           },
                         ),
                         Text("No"),
@@ -660,8 +663,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Not_Relevant,
                           groupValue: state.radioSelections["actionSoc"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("actionSoc", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent("actionSoc", value!));
                           },
                         ),
                         Text("Not relevant"),
@@ -690,8 +693,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Yes,
                           groupValue: state.radioSelections["guardExistence"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("guardExistence", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "guardExistence", value!));
                           },
                         ),
                         Text("Yes"),
@@ -706,8 +710,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["guardExistence"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("guardExistence", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "guardExistence", value!));
                           },
                         ),
                         Text("No"),
@@ -722,8 +727,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Not_Relevant,
                           groupValue: state.radioSelections["guardExistence"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("guardExistence", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "guardExistence", value!));
                           },
                         ),
                         Text("Not relevant"),
@@ -751,8 +757,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Yes,
                           groupValue: state.radioSelections["guardAttacked"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("guardAttacked", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "guardAttacked", value!));
                           },
                         ),
                         Text("Yes"),
@@ -767,8 +774,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["guardAttacked"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("guardAttacked", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "guardAttacked", value!));
                           },
                         ),
                         Text("No"),
@@ -783,8 +791,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Not_Relevant,
                           groupValue: state.radioSelections["guardAttacked"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("guardAttacked", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "guardAttacked", value!));
                           },
                         ),
                         Text("Not relevant"),
@@ -809,8 +818,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Yes,
                           groupValue: state.radioSelections["cctvAvailable"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("cctvAvailable", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "cctvAvailable", value!));
                           },
                         ),
                         Text("Yes"),
@@ -825,8 +835,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["cctvAvailable"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("cctvAvailable", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "cctvAvailable", value!));
                           },
                         ),
                         Text("No"),
@@ -841,8 +852,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Not_Relevant,
                           groupValue: state.radioSelections["cctvAvailable"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("cctvAvailable", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "cctvAvailable", value!));
                           },
                         ),
                         Text("Not relevant"),
@@ -868,8 +880,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Yes,
                           groupValue: state.radioSelections["legalNotified"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("legalNotified", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "legalNotified", value!));
                           },
                         ),
                         Text("Yes"),
@@ -884,8 +897,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["legalNotified"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("legalNotified", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "legalNotified", value!));
                           },
                         ),
                         Text("No"),
@@ -900,8 +914,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Not_Relevant,
                           groupValue: state.radioSelections["legalNotified"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("legalNotified", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "legalNotified", value!));
                           },
                         ),
                         Text("Not relevant"),
@@ -926,8 +941,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Yes,
                           groupValue: state.radioSelections["policeReport"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("policeReport", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "policeReport", value!));
                           },
                         ),
                         Text("Yes"),
@@ -942,8 +958,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["policeReport"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("policeReport", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "policeReport", value!));
                           },
                         ),
                         Text("No"),
@@ -958,8 +975,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Not_Relevant,
                           groupValue: state.radioSelections["policeReport"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("policeReport", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "policeReport", value!));
                           },
                         ),
                         Text("Not relevant"),
@@ -982,10 +1000,10 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                       children: [
                         Radio<YesNo>(
                           value: YesNo.Yes,
-                          groupValue:state.radioSelections["leaAction"],
+                          groupValue: state.radioSelections["leaAction"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("leaAction", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent("leaAction", value!));
                           },
                         ),
                         Text("Yes"),
@@ -1000,8 +1018,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.No,
                           groupValue: state.radioSelections["leaAction"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("leaAction", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent("leaAction", value!));
                           },
                         ),
                         Text("No"),
@@ -1016,8 +1034,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                           value: YesNo.Not_Relevant,
                           groupValue: state.radioSelections["leaAction"],
                           onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(UpdateRadioSelectionEvent("leaAction", value!));
-
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent("leaAction", value!));
                           },
                         ),
                         Text("Not relevant"),
@@ -1041,7 +1059,6 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               ),
               MyFormField(
                 enableSpellCheck: true,
-
                 validator: (value) => null,
                 title: "Guard Attack Details (Optional)",
                 hint: "",
@@ -1073,7 +1090,6 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
 
               MyFormField(
                   enableSpellCheck: true,
-
                   showDownMenu: true,
                   controller: closureController,
                   title: 'Closure',
@@ -1134,153 +1150,280 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               //Share
               Button(
                 onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  if ((typeController.text.toLowerCase() == 'truck' ||
-                      typeController.text.toLowerCase().contains('truck')) &&
-                      addressController.text.isEmpty) {
+                  setState(() {
+                    _isShareAction = true;
+                  });
+                  if (_formKey.currentState!.validate()) {
+                    if ((typeController.text.toLowerCase() == 'truck' ||
+                            typeController.text
+                                .toLowerCase()
+                                .contains('truck')) &&
+                        addressController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text("Address is required for truck locations"),
+                          duration: Duration(seconds: 3),
+                        ),
+                      );
+                      setState(() {
+                        _isShareAction = false; // Reset flag
+                      });                    }
+                    context
+                        .read<IncidentBloc>()
+                        .add(ShareReportEvent(formData: {
+                          'customerName': cstNamesController.text,
+                          'customerId': cstIDController.text,
+                          'locationName': locationController.text,
+                          'address': addressController.text,
+                          'reporterName': reporterNameController.text,
+                          'details': detailsArabicController.text.isNotEmpty
+                              ? detailsArabicController.text
+                              : detailsController.text,
+                          'socAction': actionController.text,
+                          'closure': closureController.text,
+                          'socMember': socMemberController.text,
+                          'leaMemberName': leaMemberController.text,
+                          'policeReportNumber': policeNuController.text,
+                          'guardAttackDetails': guardAttackDController.text
+                        }));
+                  } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                            "Address is required for truck locations"),
+                        content: Text("Please fill required data"),
                         duration: Duration(seconds: 3),
                       ),
                     );
-                    return;
                   }
-                  context
-                      .read<IncidentBloc>()
-                      .add(ShareReportEvent(formData: {
-                    'customerName': cstNamesController.text,
-                    'customerId': cstIDController.text,
-                    'locationName': locationController.text,
-                    'address': addressController.text,
-                    'reporterName': reporterNameController.text,
-                    'details': detailsArabicController.text.isNotEmpty
-                        ? detailsArabicController.text
-                        : detailsController.text,
-                    'socAction': actionController.text,
-                    'closure': closureController.text,
-                    'socMember': socMemberController.text,
-                    'leaMemberName': leaMemberController.text,
-                    'policeReportNumber': policeNuController.text,
-                    'guardAttackDetails': guardAttackDController.text
-                  }));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Please fill required data"),
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                }
-              }, title: 'Share', icon:  Icons.share,),
-
+                },
+                title: 'Share',
+                icon: Icons.share,
+              ),
 
               SizedBox(
                 height: 10,
               ),
               //Export
-              Button(onPressed: () {
-                if(_formKey.currentState!.validate())
-                {
-                  context.read<IncidentBloc>().add(ExportDocumentEvent(
-                    formData: {
-                      "date": dateController.text,
-                      "type": incidentTypeController.text,
-                      "time": timeController.text,
-                      "reported": reporterController.text,
-                      "locationName": locationController.text,
-                      "address": addressController.text,
-                      "reporterName": reporterNameController.text,
-                      "staffId": reporterIdController.text,
-                      "customerName": cstNamesController.text,
-                      "customerId": cstIDController.text,
-                      "details": detailsController.text,
-                      "socAction": actionController.text,
-                      "damaged": state.radioSelections[
-                      "equipmentDamaged"].toString().substring(6),
-                      "injured": state.radioSelections["employeeInjured"].toString().substring(6),
-                      "vendor": state.radioSelections["vendorInjured"].toString().substring(6),
-                      "takenby": state.radioSelections["actionSoc"].toString().substring(6),
-                      "alarm": state.radioSelections["alarmReceived"].toString().substring(6),
-                      "guardloc": state.radioSelections["guardExistence"].toString().substring(6),
-                      "guardatt": state.radioSelections["guardAttacked"].toString().substring(6),
-                      "cctv": state.radioSelections["cctvAvailable"].toString().substring(6),
-                      "legal": state.radioSelections["legalNotified"].toString().substring(6),
-                      "lea": state.radioSelections["leaAction"].toString().substring(6),
-                      "policere": state.radioSelections["policeReport"].toString().substring(6),
-                      "policenu": policeNuController.text,
-                      "guardattd": guardAttackDController.text,
-                      "closure": closureController.text,
-
-                    },
-                    imageFile: _selectedImage,
-                  ));
-
-                }
-                else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Please fill required data"),
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                }
-              }, title: 'Export', icon:  Icons.import_export,),
+              Button(
+                onPressed: () {
+                  setState(() {
+                    _isShareAction = false;
+                  });
+                  if (_formKey.currentState!.validate()) {
+                    context.read<IncidentBloc>().add(ExportDocumentEvent(
+                          formData: {
+                            "date": dateController.text,
+                            "type": incidentTypeController.text,
+                            "time": timeController.text,
+                            "reported": reporterController.text,
+                            "locationName": locationController.text,
+                            "address": addressController.text,
+                            "reporterName": reporterNameController.text,
+                            "staffId": reporterIdController.text,
+                            "customerName": cstNamesController.text,
+                            "customerId": cstIDController.text,
+                            "details": detailsController.text,
+                            "socAction": actionController.text,
+                            "damaged": state.radioSelections["equipmentDamaged"]
+                                .toString()
+                                .substring(6),
+                            "injured": state.radioSelections["employeeInjured"]
+                                .toString()
+                                .substring(6),
+                            "vendor": state.radioSelections["vendorInjured"]
+                                .toString()
+                                .substring(6),
+                            "takenby": state.radioSelections["actionSoc"]
+                                .toString()
+                                .substring(6),
+                            "alarm": state.radioSelections["alarmReceived"]
+                                .toString()
+                                .substring(6),
+                            "guardloc": state.radioSelections["guardExistence"]
+                                .toString()
+                                .substring(6),
+                            "guardatt": state.radioSelections["guardAttacked"]
+                                .toString()
+                                .substring(6),
+                            "cctv": state.radioSelections["cctvAvailable"]
+                                .toString()
+                                .substring(6),
+                            "legal": state.radioSelections["legalNotified"]
+                                .toString()
+                                .substring(6),
+                            "lea": state.radioSelections["leaAction"]
+                                .toString()
+                                .substring(6),
+                            "policere": state.radioSelections["policeReport"]
+                                .toString()
+                                .substring(6),
+                            "policenu": policeNuController.text,
+                            "guardattd": guardAttackDController.text,
+                            "closure": closureController.text,
+                          },
+                          imageFile: _selectedImage,
+                        ));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please fill required data"),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
+                title: 'Save',
+                icon: Icons.save,
+              ),
               SizedBox(
                 height: 10,
               ),
-              Button(onPressed: () {
-                if(_formKey.currentState!.validate())
-                {
-                  context.read<IncidentBloc>().add(SendReportEvent(
-                    formData: {
-                      'socMember': socMemberController.text,
-                      'locationType': typeController.text,
-                      "date": dateController.text,
-                      "type": incidentTypeController.text,
-                      "time": timeController.text,
-                      "reported": reporterController.text,
-                      "locationName": locationController.text,
-                      "address": addressController.text,
-                      "reporterName": reporterNameController.text,
-                      "staffId": reporterIdController.text,
-                      "customerName": cstNamesController.text,
-                      "customerId": cstIDController.text,
-                      "details": detailsController.text,
-                      "socAction": actionController.text,
-                      "damaged": state.radioSelections[
-                      "equipmentDamaged"].toString().substring(6),
-                      "injured": state.radioSelections["employeeInjured"].toString().substring(6),
-                      "vendor": state.radioSelections["vendorInjured"].toString().substring(6),
-                      "takenby": state.radioSelections["actionSoc"].toString().substring(6),
-                      "alarm": state.radioSelections["alarmReceived"].toString().substring(6),
-                      "guardloc": state.radioSelections["guardExistence"].toString().substring(6),
-                      "guardatt": state.radioSelections["guardAttacked"].toString().substring(6),
-                      "cctv": state.radioSelections["cctvAvailable"].toString().substring(6),
-                      "legal": state.radioSelections["legalNotified"].toString().substring(6),
-                      "lea": state.radioSelections["leaAction"].toString().substring(6),
-                      "policere": state.radioSelections["policeReport"].toString().substring(6),
-                      "policenu": policeNuController.text,
-                      "guardattd": guardAttackDController.text,
-                      "closure": closureController.text,
-
-                    },
-                    imageFile: _selectedImage,
-
-                  ));
-
-                }
-                else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Please fill required data"),
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                }
-              }, title: 'Export & Send Report', icon:  Icons.email,),
-
+              Button(
+                onPressed: () {
+                  setState(() {
+                    _isShareAction = false; // Ensure flag is false
+                  });
+                  if (_formKey.currentState!.validate()) {
+                    context.read<IncidentBloc>().add(SendReportYourSelfEvent(
+                          formData: {
+                            'socMember': socMemberController.text,
+                            'locationType': typeController.text,
+                            "date": dateController.text,
+                            "type": incidentTypeController.text,
+                            "time": timeController.text,
+                            "reported": reporterController.text,
+                            "locationName": locationController.text,
+                            "address": addressController.text,
+                            "reporterName": reporterNameController.text,
+                            "staffId": reporterIdController.text,
+                            "customerName": cstNamesController.text,
+                            "customerId": cstIDController.text,
+                            "details": detailsController.text,
+                            "socAction": actionController.text,
+                            "damaged": state.radioSelections["equipmentDamaged"]
+                                .toString()
+                                .substring(6),
+                            "injured": state.radioSelections["employeeInjured"]
+                                .toString()
+                                .substring(6),
+                            "vendor": state.radioSelections["vendorInjured"]
+                                .toString()
+                                .substring(6),
+                            "takenby": state.radioSelections["actionSoc"]
+                                .toString()
+                                .substring(6),
+                            "alarm": state.radioSelections["alarmReceived"]
+                                .toString()
+                                .substring(6),
+                            "guardloc": state.radioSelections["guardExistence"]
+                                .toString()
+                                .substring(6),
+                            "guardatt": state.radioSelections["guardAttacked"]
+                                .toString()
+                                .substring(6),
+                            "cctv": state.radioSelections["cctvAvailable"]
+                                .toString()
+                                .substring(6),
+                            "legal": state.radioSelections["legalNotified"]
+                                .toString()
+                                .substring(6),
+                            "lea": state.radioSelections["leaAction"]
+                                .toString()
+                                .substring(6),
+                            "policere": state.radioSelections["policeReport"]
+                                .toString()
+                                .substring(6),
+                            "policenu": policeNuController.text,
+                            "guardattd": guardAttackDController.text,
+                            "closure": closureController.text,
+                          },
+                          imageFile: _selectedImage,
+                        ));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please fill required data"),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
+                title: 'Send Report to yourself',
+                icon: Icons.email,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Button(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    context.read<IncidentBloc>().add(SendReportEvent(
+                          formData: {
+                            'socMember': socMemberController.text,
+                            'locationType': typeController.text,
+                            "date": dateController.text,
+                            "type": incidentTypeController.text,
+                            "time": timeController.text,
+                            "reported": reporterController.text,
+                            "locationName": locationController.text,
+                            "address": addressController.text,
+                            "reporterName": reporterNameController.text,
+                            "staffId": reporterIdController.text,
+                            "customerName": cstNamesController.text,
+                            "customerId": cstIDController.text,
+                            "details": detailsController.text,
+                            "socAction": actionController.text,
+                            "damaged": state.radioSelections["equipmentDamaged"]
+                                .toString()
+                                .substring(6),
+                            "injured": state.radioSelections["employeeInjured"]
+                                .toString()
+                                .substring(6),
+                            "vendor": state.radioSelections["vendorInjured"]
+                                .toString()
+                                .substring(6),
+                            "takenby": state.radioSelections["actionSoc"]
+                                .toString()
+                                .substring(6),
+                            "alarm": state.radioSelections["alarmReceived"]
+                                .toString()
+                                .substring(6),
+                            "guardloc": state.radioSelections["guardExistence"]
+                                .toString()
+                                .substring(6),
+                            "guardatt": state.radioSelections["guardAttacked"]
+                                .toString()
+                                .substring(6),
+                            "cctv": state.radioSelections["cctvAvailable"]
+                                .toString()
+                                .substring(6),
+                            "legal": state.radioSelections["legalNotified"]
+                                .toString()
+                                .substring(6),
+                            "lea": state.radioSelections["leaAction"]
+                                .toString()
+                                .substring(6),
+                            "policere": state.radioSelections["policeReport"]
+                                .toString()
+                                .substring(6),
+                            "policenu": policeNuController.text,
+                            "guardattd": guardAttackDController.text,
+                            "closure": closureController.text,
+                          },
+                          imageFile: _selectedImage,
+                        ));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please fill required data"),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
+                title: 'Send Report to Management',
+                icon: Icons.email,
+              ),
             ],
           ),
         ),

@@ -140,7 +140,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
       final String locationTypes = event.formData['locationType'];
       final String ? leaName = event.formData['leaMemberName'];
-
+      final String? legalNotified = event.formData['legal'];
       // Define LEA member email mapping
       final Map<String, String> leaMemberEmails = {
         'Akram Ali': 'akram.ali@vodafone.com.eg',
@@ -179,22 +179,30 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
         ];
         ccRecipients = ['kamel.okko@vodafone.com.eg'];
       }
+      print(leaName);
 
-      if (leaName != null && leaName.isNotEmpty && leaName != '') {
+      if (leaName != null || leaName!.isNotEmpty ) {
         final leaEmail = leaMemberEmails[leaName];
+        print(leaEmail);
+
         if (leaEmail != null) {
+          print(leaEmail);
+
           ccRecipients.add(leaEmail);
         }
       }
+      print(ccRecipients);
 
-      final String? legalNotified = event.formData['legal'];
+
       if (legalNotified == 'Yes') {
         ccRecipients.add('Tamer.Wahba@vodafone.com.eg');
       }
 
+      print(ccRecipients);
+
+
       // Generate email content
       final emailContent = _generateAuditEmailContent(event.formData);
-
       // Send email
       await _sendViaOutlook(
         subject: 'Incident Report - ${event.formData['locationName']}',
@@ -239,15 +247,12 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
         'Mohamed Ihab': 'mohamed.ehabahmed2@vodafone.com.eg',
         'Ahmed Hassan': 'ahmed.Elsherif@vodafone.com.eg',
         'Karim Abo Ela': 'Karim.AbolEla@vodafone.com.eg',
-        'Hady Khalifa': 'ady.Sayed-Ibrahim@vodafone.com.eg',
+        'Hady Khalifa': 'Hady.Sayed-Ibrahim@vodafone.com.eg',
       };
 
-      if (socEmails != null && socEmails.isNotEmpty && socEmails != '') {
-        final socEmail = socEmails[memberName];
-        if (socEmail != null) {
-          recipients.add(socEmail);
-        }
-      }
+      final socEmail = socEmails![memberName];
+      recipients.add(socEmail!);
+
 
       // Generate email content
       final emailContent = _generateAuditEmailContent(event.formData);

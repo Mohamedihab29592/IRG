@@ -1281,7 +1281,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               Button(
                 onPressed: () {
                   setState(() {
-                    _isShareAction = false; // Ensure flag is false
+                    _isShareAction = false;
                   });
                   if (_formKey.currentState!.validate()) {
                     context.read<IncidentBloc>().add(SendReportYourSelfEvent(
@@ -1356,6 +1356,9 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
               ),
               Button(
                 onPressed: () {
+                  setState(() {
+                    _isShareAction = false;
+                  });
                   if (_formKey.currentState!.validate()) {
                     context.read<IncidentBloc>().add(SendReportEvent(
                           formData: {
@@ -1372,6 +1375,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                             "customerName": cstNamesController.text,
                             "customerId": cstIDController.text,
                             "details": detailsController.text,
+                            'leaMemberName': leaMemberController.text,
                             "socAction": actionController.text,
                             "damaged": state.radioSelections["equipmentDamaged"]
                                 .toString()

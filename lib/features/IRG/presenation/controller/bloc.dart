@@ -164,7 +164,22 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
           'amr.elkhateeb@vodafone.com.eg',
           'amr.abdelaziz@vodafone.com.eg'
         ];
-      } else if (locationTypes == 'Owned') {
+      } if(locationTypes == 'Truck' )
+        {
+          recipients = [
+            'RetailPartnershipManagementRelationTeam@vodafone.com.eg'
+          ];
+          ccRecipients = [
+            'tarek.raslan@vodafone.com.eg',
+            'mohamed.aboul-ezz@vodafone.com.eg',
+            'saad.el-moselhy@vodafone.com.eg',
+            'amr.elkhateeb@vodafone.com.eg',
+            'amr.abdelaziz@vodafone.com.eg',
+            'Tamer.Badawy@vodafone.com.eg'
+          ];
+        }
+
+      else if (locationTypes == 'Owned') {
         recipients = [
           'tarek.raslan@vodafone.com.eg',
           'mohamed.aboul-ezz@vodafone.com.eg'
@@ -176,7 +191,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
         ];
       } else if (locationTypes == 'Building' ||
           locationTypes == 'Switch' ||
-          locationTypes == 'Warehouse') {
+          locationTypes == 'Warehouse'||locationTypes == 'Apartment') {
         recipients = [
           'tarek.raslan@vodafone.com.eg',
           'mohamed.aboul-ezz@vodafone.com.eg'
@@ -199,8 +214,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
         ccRecipients.add('Tamer.Wahba@vodafone.com.eg');
       }
       if (health == 'Yes') {
-        recipients.add("Health.Safety@vodafone.com.eg");
-        ccRecipients.add("motaz.badr@vodafone.com.eg");
+        ccRecipients.add("Health.Safety@vodafone.com.eg");
       }
 
       // Generate email content

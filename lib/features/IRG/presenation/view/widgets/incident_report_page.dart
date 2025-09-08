@@ -926,6 +926,66 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                 ],
               ),
               SizedBox(height: 20),
+              Row(
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: Text("H&S Notified"),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Radio<YesNo>(
+                          value: YesNo.Yes,
+                          groupValue: state.radioSelections["healthNotified"],
+                          onChanged: (YesNo? value) {
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "healthNotified", value!));
+                          },
+                        ),
+                        Text("Yes"),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Radio<YesNo>(
+                          value: YesNo.No,
+                          groupValue: state.radioSelections["healthNotified"],
+                          onChanged: (YesNo? value) {
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "healthNotified", value!));
+                          },
+                        ),
+                        Text("No"),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: Row(
+                      children: [
+                        Radio<YesNo>(
+                          value: YesNo.Not_Relevant,
+                          groupValue: state.radioSelections["healthNotified"],
+                          onChanged: (YesNo? value) {
+                            context.read<IncidentBloc>().add(
+                                UpdateRadioSelectionEvent(
+                                    "healthNotified", value!));
+                          },
+                        ),
+                        Text("Not relevant"),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
               //Police Report issuance
               Row(
                 children: [
@@ -1404,6 +1464,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                             "legal": state.radioSelections["legalNotified"]
                                 .toString()
                                 .substring(6),
+                            "health": state.radioSelections["healthNotified"]
+                                .toString().substring(6),
                             "lea": state.radioSelections["leaAction"]
                                 .toString()
                                 .substring(6),

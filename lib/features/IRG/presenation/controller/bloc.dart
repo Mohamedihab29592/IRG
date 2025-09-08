@@ -62,6 +62,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       'guardAttacked': YesNo.No,
       'cctvAvailable': YesNo.Yes,
       'legalNotified': YesNo.No,
+      'healthNotified': YesNo.No,
       'policeReport': YesNo.No,
       'leaAction': YesNo.Yes,
     };
@@ -119,9 +120,9 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   }
 
   Future<void> _onSendEmail(
-      SendReportEvent event,
-      Emitter<IncidentState> emit,
-      ) async {
+    SendReportEvent event,
+    Emitter<IncidentState> emit,
+  ) async {
     final previousState = state;
 
     try {
@@ -139,18 +140,18 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       List<String> ccRecipients = [];
 
       final String locationTypes = event.formData['locationType'];
-      final String ? leaName = event.formData['leaMemberName'];
+      final String? leaName = event.formData['leaMemberName'];
       final String? legalNotified = event.formData['legal'];
+      final String? health = event.formData['health'];
       // Define LEA member email mapping
       final Map<String, String> leaMemberEmails = {
         'Akram Ali': 'akram.ali@vodafone.com.eg',
         'Ahmed ElDesouky': 'ahmed.eldesouky@vodafone.com.eg',
-        'Ahmed Aly': 'ahmed.aly@vodafone.com.eg',
+        'Ahmed Aly': 'Ahmed.Hussien-ElDeeb@vodafone.com.eg',
         'Mohamed Mansy': 'mohamed.mansy@vodafone.com.eg',
         'Momen Sayed': 'momen.sayed@vodafone.com.eg',
         'Tarek El Nagar': 'tarek.elnagar@vodafone.com.eg',
       };
-
 
       if (locationTypes == 'Express' || locationTypes == 'Franchise') {
         recipients = [
@@ -160,7 +161,8 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
           'tarek.raslan@vodafone.com.eg',
           'mohamed.aboul-ezz@vodafone.com.eg',
           'saad.el-moselhy@vodafone.com.eg',
-          'amr.elkhateeb@vodafone.com.eg'
+          'amr.elkhateeb@vodafone.com.eg',
+          'amr.abdelaziz@vodafone.com.eg'
         ];
       } else if (locationTypes == 'Owned') {
         recipients = [
@@ -172,16 +174,17 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
           'amr.elkhateeb@vodafone.com.eg',
           'amr.abdelaziz@vodafone.com.eg'
         ];
-      } else if (locationTypes == 'Building') {
+      } else if (locationTypes == 'Building' ||
+          locationTypes == 'Switch' ||
+          locationTypes == 'Warehouse') {
         recipients = [
           'tarek.raslan@vodafone.com.eg',
           'mohamed.aboul-ezz@vodafone.com.eg'
         ];
         ccRecipients = ['kamel.okko@vodafone.com.eg'];
       }
-      print(leaName);
 
-      if (leaName != null || leaName!.isNotEmpty ) {
+      if (leaName != null || leaName!.isNotEmpty) {
         final leaEmail = leaMemberEmails[leaName];
         print(leaEmail);
 
@@ -191,15 +194,14 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
           ccRecipients.add(leaEmail);
         }
       }
-      print(ccRecipients);
-
 
       if (legalNotified == 'Yes') {
         ccRecipients.add('Tamer.Wahba@vodafone.com.eg');
       }
-
-      print(ccRecipients);
-
+      if (health == 'Yes') {
+        recipients.add("Health.Safety@vodafone.com.eg");
+        ccRecipients.add("motaz.badr@vodafone.com.eg");
+      }
 
       // Generate email content
       final emailContent = _generateAuditEmailContent(event.formData);
@@ -240,7 +242,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       List<String> recipients = [];
 
       final String memberName = event.formData['socMember'];
-      final Map<String, String> ? socEmails = {
+      final Map<String, String>? socEmails = {
         'Mohamed Abo Elez': 'mohamed.aboul-ezz@vodafone.com.eg',
         'Ahmed Hamdy': 'ahmed.hamdyali1@vodafone.com.eg',
         'Ahmed Aly': 'ahmed.aly@vodafone.com.eg',
@@ -252,7 +254,6 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
       final socEmail = socEmails![memberName];
       recipients.add(socEmail!);
-
 
       // Generate email content
       final emailContent = _generateAuditEmailContent(event.formData);

@@ -13,6 +13,7 @@ class IncidentLoaded extends IncidentState {
   final Map<String, YesNo> radioSelections;
   final List<dynamic> locationFilterItems;
   final String? translatedText;
+  final String? errorMessage;
   final bool isTranslating;
 
   IncidentLoaded({
@@ -21,6 +22,7 @@ class IncidentLoaded extends IncidentState {
     required this.radioSelections,
     required this.locationFilterItems,
     this.translatedText,
+    this.errorMessage,
     this.isTranslating = false,
   });
 
@@ -30,6 +32,7 @@ class IncidentLoaded extends IncidentState {
     Map<String, YesNo>? radioSelections,
     List<dynamic>? locationFilterItems,
     String? translatedText,
+    String? errorMessage,
     bool? isTranslating,
   }) {
     return IncidentLoaded(
@@ -39,6 +42,7 @@ class IncidentLoaded extends IncidentState {
       locationFilterItems: locationFilterItems ?? this.locationFilterItems,
       translatedText: translatedText ?? this.translatedText,
       isTranslating: isTranslating ?? this.isTranslating,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

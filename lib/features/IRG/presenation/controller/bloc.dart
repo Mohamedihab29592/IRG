@@ -6,14 +6,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:translator/translator.dart';
 import '../../../../core/constants/enum.dart';
+import '../../../../core/services/translate.dart';
 import '../../domain/repo.dart';
 import 'events.dart';
 
 class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   final IncidentRepository repository;
-  final translator = GoogleTranslator();
 
   IncidentBloc({required this.repository}) : super(IncidentInitial()) {
     on<LoadInitialDataEvent>(_onLoadInitialData);
@@ -477,52 +476,30 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   }
 
   Future<void> _onTranslateDetails(
-    TranslateDetailsEvent event,
-    Emitter<IncidentState> emit,
-  ) async {
+      TranslateDetailsEvent event,
+      Emitter<IncidentState> emit,
+      ) async {
     if (state is IncidentLoaded) {
       final currentState = state as IncidentLoaded;
-
-      // Show loading state
       emit(currentState.copyWith(isTranslating: true));
 
       try {
-        if (event.text.isEmpty) {
-          emit(currentState.copyWith(
-            translatedText: '',
-            isTranslating: false,
-          ));
-          return;
-        }
-
-        // Only translate from Arabic to English
-        if (!event.isFromArabic) {
-          // If text is not from Arabic field, don't translate
-          emit(currentState.copyWith(isTranslating: false));
-          return;
-        }
-
-        // Translate from Arabic to English only
-        final translation = await translator.translate(
-          event.text,
-          from: 'ar',
-          to: 'en',
+        final translation = await TranslationService.translateText(
+          text: event.text,
+          sourceLang: 'ar',
+          targetLang: 'en',
         );
 
         emit(currentState.copyWith(
-          translatedText: translation.text,
+          translatedText: translation,
           isTranslating: false,
         ));
       } catch (e) {
         print('Translation error: $e');
         emit(currentState.copyWith(
           isTranslating: false,
+          errorMessage: 'Translation failed. Please try again.',
         ));
-        // Show error briefly
-        emit(IncidentError('Translation failed: $e'));
-        // Return to previous state after showing error
-        await Future.delayed(Duration(milliseconds: 100));
-        emit(currentState.copyWith(isTranslating: false));
       }
     }
   }

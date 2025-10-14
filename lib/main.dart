@@ -6,7 +6,6 @@ import 'core/services/di.dart';
 import 'features/IRG/domain/repo.dart';
 import 'features/IRG/presenation/controller/bloc.dart';
 import 'features/IRG/presenation/controller/events.dart';
-import 'features/IRG/presenation/view/screens/incident_report_form.dart';
 import 'features/IRG/presenation/view/screens/splash.dart';
 
 

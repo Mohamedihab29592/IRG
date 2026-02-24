@@ -1,13 +1,17 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:IRG/features/IRG/presenation/controller/state.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:docx_template/docx_template.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/constants/enum.dart';
 import '../../../../core/services/translate.dart';
+import '../../data/Model/lookup_model.dart';
 import '../../domain/repo.dart';
 import 'events.dart';
 
@@ -24,6 +28,8 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     on<SendReportEvent>(_onSendEmail);
     on<SendReportYourSelfEvent>(_onSendEmailYourSelf);
     on<TranslateDetailsEvent>(_onTranslateDetails);
+    on<ClearTranslatedTextEvent>(_onClearTranslatedText);
+
   }
 
   Future<void> _onLoadInitialData(
@@ -149,7 +155,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
         'Ahmed Aly': 'Ahmed.Hussien-ElDeeb@vodafone.com.eg',
         'Mohamed Mansy': 'mohamed.mansy@vodafone.com.eg',
         'Momen Sayed': 'momen.sayed@vodafone.com.eg',
-        'Tarek El Nagar': 'tarek.elnagar@vodafone.com.eg',
+        'Tarek El Nagar': 'tarek.elnaggar@vodafone.com.eg',
       };
 
       if (locationTypes == 'Express' || locationTypes == 'Franchise') {
@@ -163,22 +169,20 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
           'amr.elkhateeb@vodafone.com.eg',
           'amr.abdelaziz@vodafone.com.eg'
         ];
-      } if(locationTypes == 'Truck' )
-        {
-          recipients = [
-            'RetailPartnershipManagementRelationTeam@vodafone.com.eg'
-          ];
-          ccRecipients = [
-            'tarek.raslan@vodafone.com.eg',
-            'mohamed.aboul-ezz@vodafone.com.eg',
-            'saad.el-moselhy@vodafone.com.eg',
-            'amr.elkhateeb@vodafone.com.eg',
-            'amr.abdelaziz@vodafone.com.eg',
-            'Tamer.Badawy@vodafone.com.eg'
-          ];
-        }
-
-      else if (locationTypes == 'Owned') {
+      }
+      if (locationTypes == 'Truck') {
+        recipients = [
+          'RetailPartnershipManagementRelationTeam@vodafone.com.eg'
+        ];
+        ccRecipients = [
+          'tarek.raslan@vodafone.com.eg',
+          'mohamed.aboul-ezz@vodafone.com.eg',
+          'saad.el-moselhy@vodafone.com.eg',
+          'amr.elkhateeb@vodafone.com.eg',
+          'amr.abdelaziz@vodafone.com.eg',
+          'Tamer.Badawy@vodafone.com.eg'
+        ];
+      } else if (locationTypes == 'Owned') {
         recipients = [
           'tarek.raslan@vodafone.com.eg',
           'mohamed.aboul-ezz@vodafone.com.eg'
@@ -190,7 +194,8 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
         ];
       } else if (locationTypes == 'Building' ||
           locationTypes == 'Switch' ||
-          locationTypes == 'Warehouse'||locationTypes == 'Apartment') {
+          locationTypes == 'Warehouse' ||
+          locationTypes == 'Apartment') {
         recipients = [
           'tarek.raslan@vodafone.com.eg',
           'mohamed.aboul-ezz@vodafone.com.eg'
@@ -258,9 +263,8 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       final Map<String, String>? socEmails = {
         'Mohamed Abo Elez': 'mohamed.aboul-ezz@vodafone.com.eg',
         'Ahmed Hamdy': 'ahmed.hamdyali1@vodafone.com.eg',
-        'Ahmed Aly': 'ahmed.aly@vodafone.com.eg',
         'Mohamed Ihab': 'mohamed.ehabahmed2@vodafone.com.eg',
-        'Ahmed Hassan': 'ahmed.Elsherif@vodafone.com.eg',
+        'Mustafa Taha': 'mostafa.tahahassan1@vodafone.com.eg',
         'Karim Abo Ela': 'Karim.AbolEla@vodafone.com.eg',
         'Hady Khalifa': 'Hady.Sayed-Ibrahim@vodafone.com.eg',
       };
@@ -290,6 +294,12 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
   Content _prepareDocumentContent(
       Map<String, dynamic> formData, File? imageFile) {
+    final socAction = formData['socAction'] ?? '';
+    final menuItems = formData['menuItems'] as List<LookupModel>?;
+    final isFromMenu = _isMenuSelection(socAction, menuItems);
+    final socActionText = isFromMenu
+        ? 'Case reported to $socAction'
+        : socAction;
     Content content = Content()
       ..add(TextContent('date', formData['date']))
       ..add(TextContent('type', formData['type']))
@@ -301,8 +311,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       ..add(TextContent('staff id', formData['staffId']))
       ..add(TextContent('customer name', formData['customerName']))
       ..add(TextContent('customer id', formData['customerId']))
-      ..add(TextContent(
-          'soc action', 'Case reported to ${formData['socAction']}'))
+      ..add(TextContent('soc action', socActionText))
       ..add(TextContent('damaged', formData['damaged']))
       ..add(TextContent('injured', formData['injured']))
       ..add(TextContent('vendor', formData['vendor']))
@@ -332,55 +341,92 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
 // This function extracts the document exporting logic from _onExportDocument
   Future<String> _exportDocumentAndGetPath(
-    Map<String, dynamic> formData,
-    File? imageFile,
-  ) async {
+      Map<String, dynamic> formData,
+      File? imageFile,
+      ) async {
     final data = await rootBundle.load('assets/Incident report.docx');
     final bytes = data.buffer.asUint8List();
 
-    // Save the template to a writable directory
     final directory = await getApplicationDocumentsDirectory();
     final fileDoc = File('${directory.path}/Document.docx');
     await fileDoc.writeAsBytes(bytes);
 
-    // Load the document for modification
     final docx = await DocxTemplate.fromBytes(await fileDoc.readAsBytes());
-
-    // Prepare content
     final content = _prepareDocumentContent(formData, imageFile);
-
-    // Generate document
     final generatedDoc = await docx.generate(content);
+
     if (generatedDoc == null) {
       throw Exception("Failed to generate document");
     }
 
-    // Save to Documents folder
-    final outputDir = Directory('/storage/emulated/0/Documents');
-    if (!outputDir.existsSync()) {
-      outputDir.createSync(recursive: true);
-    }
-
-    final outputFile = File(
-        '${outputDir.path}/Incident report - ${formData['locationName']}.docx');
+    // ✅ Use Downloads folder via MediaStore (Android 10+) or fallback
+    final outputPath = await _getSavePath(formData['locationName']);
+    final outputFile = File(outputPath);
     await outputFile.writeAsBytes(generatedDoc);
 
-    return outputFile.path;
+    // ✅ Make file visible in file manager
+    await _makeFileVisible(outputPath);
+
+    return outputPath;
+  }
+
+  Future<String> _getSavePath(String locationName) async {
+    final sanitizedName = locationName.replaceAll(RegExp(r'[^\w\s-]'), '');
+    final fileName = 'Incident report - $sanitizedName.docx';
+
+    if (Platform.isAndroid) {
+      // ✅ Android 10+ safe path
+      final directory = await getExternalStorageDirectory();
+      if (directory != null) {
+        return '${directory.path}/$fileName';
+      }
+    }
+
+    // ✅ Fallback for iOS or if external storage unavailable
+    final directory = await getApplicationDocumentsDirectory();
+    return '${directory.path}/$fileName';
+  }
+
+// ✅ Make file visible in file manager on Android
+  Future<void> _makeFileVisible(String filePath) async {
+    if (Platform.isAndroid) {
+      try {
+        final result = await const MethodChannel('com.example.irg/media_scanner')
+            .invokeMethod('scanFile', {'path': filePath});
+        print('Media scan result: $result');
+      } catch (e) {
+        print('Media scanner not available: $e');
+        // Not critical — file is still saved
+      }
+    }
   }
 
 // Keep your existing _onExportDocument method but modify it to use the extracted function
   Future<void> _onExportDocument(
-    ExportDocumentEvent event,
-    Emitter<IncidentState> emit,
-  ) async {
+      ExportDocumentEvent event,
+      Emitter<IncidentState> emit,
+      ) async {
     final previousState = state;
-
     try {
-      final previousState = state;
       if (previousState is! IncidentLoaded) return;
 
-      final outputFilePath =
-          await _exportDocumentAndGetPath(event.formData, event.imageFile);
+      // ✅ Request storage permission on Android < 10
+      if (Platform.isAndroid) {
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
+        if (androidInfo.version.sdkInt <= 29) {
+          final status = await Permission.storage.request();
+          if (!status.isGranted) {
+            emit(IncidentError('Storage permission denied'));
+            emit(previousState);
+            return;
+          }
+        }
+      }
+
+      final outputFilePath = await _exportDocumentAndGetPath(
+        event.formData,
+        event.imageFile,
+      );
 
       emit(DocumentExported(outputFilePath));
       emit(previousState);
@@ -426,7 +472,8 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   Future<void> _onShareReport(
     ShareReportEvent event,
     Emitter<IncidentState> emit,
-  ) async {
+  ) async
+  {
     try {
       final text = _generateShareText(event.formData);
       await Share.share(text);
@@ -440,7 +487,10 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
     // Add required fields
     buffer.writeln('Incident Location: ${formData['locationName']}.\n');
-    buffer.writeln('Address: ${formData['address']}.\n');
+
+    if (formData['address']?.isNotEmpty == true) {
+      buffer.writeln('Address: ${formData['address']}.\n');
+    }
     buffer.writeln('Reporter: ${formData['reporterName']}.\n');
     buffer.writeln('Details: ${formData['details']}.\n');
 
@@ -452,8 +502,15 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
       buffer.writeln('ID: ${formData['customerId']}.\n');
     }
 
-    buffer.writeln('SOC Action: Case reported to ${formData['socAction']}.\n');
-
+    final socAction = formData['socAction'] ?? '';
+    if (socAction.isNotEmpty) {
+      final isFromMenu = _isMenuSelection(socAction, formData['menuItems']);
+      if (isFromMenu) {
+        buffer.writeln('SOC Action: Case reported to $socAction.\n');
+      } else {
+        buffer.writeln('SOC Action: $socAction.\n');
+      }
+    }
     // Add other optional fields
     if (formData['guardAttackDetails']?.isNotEmpty == true) {
       buffer.writeln(
@@ -474,14 +531,19 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
 
     return buffer.toString();
   }
-
+  bool _isMenuSelection(String value, List<LookupModel>? menuItems) {
+    if (menuItems == null || menuItems.isEmpty) return false;
+    final parts = value.split(',').map((e) => e.trim());
+    final menuNames = menuItems.map((e) => e.name).toSet();
+    return parts.every((part) => menuNames.contains(part));
+  }
   Future<void> _onTranslateDetails(
       TranslateDetailsEvent event,
       Emitter<IncidentState> emit,
       ) async {
     if (state is IncidentLoaded) {
       final currentState = state as IncidentLoaded;
-      emit(currentState.copyWith(isTranslating: true));
+      emit(currentState.copyWith(isTranslating: true, errorMessage: null));
 
       try {
         final translation = await TranslationService.translateText(
@@ -490,17 +552,40 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
           targetLang: 'en',
         );
 
+        if (translation.trim().isEmpty) {
+          emit(currentState.copyWith(
+            isTranslating: false,
+            errorMessage: 'Translation returned empty. Please try again.',
+          ));
+          return;
+        }
+
         emit(currentState.copyWith(
           translatedText: translation,
           isTranslating: false,
+          errorMessage: null,
         ));
-      } catch (e) {
-        print('Translation error: $e');
+      } on TimeoutException {
         emit(currentState.copyWith(
           isTranslating: false,
-          errorMessage: 'Translation failed. Please try again.',
+          errorMessage: 'Translation timed out. Please check your connection.',
+        ));
+      } catch (e) {
+        emit(currentState.copyWith(
+          isTranslating: false,
+          errorMessage: e.toString().replaceFirst('Exception: ', ''),
         ));
       }
+    }
+  }
+
+  void _onClearTranslatedText(
+      ClearTranslatedTextEvent event,
+      Emitter<IncidentState> emit,
+      ) {
+    if (state is IncidentLoaded) {
+      final currentState = state as IncidentLoaded;
+      emit(currentState.copyWith(clearTranslatedText: true)); // ✅ explicitly nullify
     }
   }
 }

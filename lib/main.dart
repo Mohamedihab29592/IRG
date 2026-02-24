@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 
       )..add(LoadInitialDataEvent()),
       child: MaterialApp(
-        theme: ThemeData(scaffoldBackgroundColor: Colors.grey[400],appBarTheme: AppBarTheme(color: Colors.grey[400],titleTextStyle: TextStyle(color: Colors.black,fontSize: 25))),
+        theme: ThemeData(scaffoldBackgroundColor: Colors.grey[400],appBarTheme: AppBarTheme(backgroundColor: Colors.grey[400],titleTextStyle: TextStyle(color: Colors.black,fontSize: 25))),
         debugShowCheckedModeBanner: false,
 
         // This widget is the ro

@@ -176,22 +176,28 @@ code_sign_if_enabled() {
 }
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/flutter_native_splash/flutter_native_splash.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/device_info_plus/device_info_plus.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/flutter_email_sender/flutter_email_sender.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/image_picker_ios/image_picker_ios.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/sqflite/sqflite.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/sqflite_darwin/sqflite_darwin.framework"
 fi
 if [[ "$CONFIGURATION" == "Profile" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/flutter_native_splash/flutter_native_splash.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/device_info_plus/device_info_plus.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/flutter_email_sender/flutter_email_sender.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/image_picker_ios/image_picker_ios.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/sqflite/sqflite.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/sqflite_darwin/sqflite_darwin.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/flutter_native_splash/flutter_native_splash.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/device_info_plus/device_info_plus.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/flutter_email_sender/flutter_email_sender.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/image_picker_ios/image_picker_ios.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework"
-  install_framework "${BUILT_PRODUCTS_DIR}/sqflite/sqflite.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/sqflite_darwin/sqflite_darwin.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
   wait

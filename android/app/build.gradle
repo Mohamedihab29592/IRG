@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.incident_report_genartor"
-    compileSdkVersion 34
+    compileSdkVersion 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {

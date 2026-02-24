@@ -11,10 +11,7 @@ class LookupModel {
   factory LookupModel.fromJson(Map<String, dynamic> json) {
     return LookupModel(
       id: json['id'] as int,
-      name: json['name'] ??"",
+      name: json['name'] ?? "",
     );
   }
-
-
 }
-

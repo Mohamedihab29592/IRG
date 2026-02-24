@@ -47,10 +47,13 @@ dependencies:
   path: ^1.8.3
   flutter_email_sender: ^6.0.0
   http: ^0.13.6
+  permission_handler: ^11.3.0
+  device_info_plus: ^12.3.0
 
 
 
 dev_dependencies:
+  archive: ^3.6.1
   flutter_test:
     sdk: flutter
 

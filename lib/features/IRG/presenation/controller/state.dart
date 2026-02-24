@@ -34,13 +34,14 @@ class IncidentLoaded extends IncidentState {
     String? translatedText,
     String? errorMessage,
     bool? isTranslating,
+    bool clearTranslatedText = false,
   }) {
     return IncidentLoaded(
       lookupData: lookupData ?? this.lookupData,
       formData: formData ?? this.formData,
       radioSelections: radioSelections ?? this.radioSelections,
       locationFilterItems: locationFilterItems ?? this.locationFilterItems,
-      translatedText: translatedText ?? this.translatedText,
+      translatedText: clearTranslatedText ? null : (translatedText ?? this.translatedText),
       isTranslating: isTranslating ?? this.isTranslating,
       errorMessage: errorMessage ?? this.errorMessage,
     );

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:IRG/core/constants/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,6 +8,7 @@ import '../../controller/events.dart';
 import '../../controller/state.dart';
 import 'appBar.dart';
 import 'buttons.dart';
+import 'group_radio.dart';
 import 'my_form_field.dart';
 
 class IncidentReportForm extends StatefulWidget {
@@ -87,21 +87,31 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
   Widget build(BuildContext context) {
     return BlocConsumer<IncidentBloc, IncidentState>(
       listener: (context, state) {
-        if (state is IncidentLoaded && state.translatedText != null) {
-          if (detailsArabicController.text.isNotEmpty) {
-            detailsController.text = state.translatedText!;
-          }
-        } else if (state is IncidentError) {
+        // ✅ Fix: check IncidentLoaded with translatedText
+        if (state is IncidentLoaded &&
+            state.translatedText != null &&
+            state.translatedText!.isNotEmpty) {
+          detailsController.text = state.translatedText!;
+          // ✅ Clear translatedText after consuming to prevent re-triggering
+          context.read<IncidentBloc>().add(ClearTranslatedTextEvent());
+        } else if (state is IncidentLoaded &&
+            state.errorMessage != null &&
+            state.errorMessage!.isNotEmpty) {
+          print(state.errorMessage);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
+            SnackBar(content: Text(state.errorMessage!)),
           );
+        } else if (state is IncidentError) {
+          if (state.message.isNotEmpty)
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
         } else if (state is DocumentExported) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('File saved successfully in ${state.path}')),
           );
         }
-      },
-      builder: (context, state) {
+      },      builder: (context, state) {
         return PopScope(
             canPop: false,
             child: SafeArea(
@@ -428,681 +438,132 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                 height: 20,
               ),
               //Is Vodafone Equipment damaged?
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text("Is Vodafone Equipment damaged?"),
-                  Spacer(),
-                  Row(
-                    children: [
-                      Radio<YesNo>(
-                        value: YesNo.Yes,
-                        groupValue: state.radioSelections["equipmentDamaged"],
-                        onChanged: (YesNo? value) {
-                          context.read<IncidentBloc>().add(
-                              UpdateRadioSelectionEvent(
-                                  "equipmentDamaged", value!));
-                        },
-                      ),
-                      Text("Yes"),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Radio<YesNo>(
-                        value: YesNo.No,
-                        groupValue: state.radioSelections["equipmentDamaged"],
-                        onChanged: (YesNo? value) {
-                          context.read<IncidentBloc>().add(
-                              UpdateRadioSelectionEvent(
-                                  "equipmentDamaged", value!));
-                        },
-                      ),
-                      Text("No"),
-                    ],
-                  ),
-                ],
+              YesNoRadioGroup(
+                label: "Is Vodafone Equipment damaged?",
+                radioKey: "equipmentDamaged",
+                groupValue: state.radioSelections["equipmentDamaged"],
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              //Is Employees / Guard Injured?
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text("Is Employees / Guard Injured?"),
-                  Spacer(),
-                  Row(
-                    children: [
-                      Radio<YesNo>(
-                        value: YesNo.Yes,
-                        groupValue: state.radioSelections["employeeInjured"],
-                        onChanged: (YesNo? value) {
-                          context.read<IncidentBloc>().add(
-                              UpdateRadioSelectionEvent(
-                                  "employeeInjured", value!));
-                        },
-                      ),
-                      Text("Yes"),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Radio<YesNo>(
-                        value: YesNo.No,
-                        groupValue: state.radioSelections["employeeInjured"],
-                        onChanged: (YesNo? value) {
-                          context.read<IncidentBloc>().add(
-                              UpdateRadioSelectionEvent(
-                                  "employeeInjured", value!));
-                        },
-                      ),
-                      Text("No"),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              //External vendor/ Customers/ Visitors injured?
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                      flex: 2,
-                      child:
-                          Text("External vendor/Customers/Visitors injured?")),
-                  Spacer(),
-                  Expanded(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["vendorInjured"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "vendorInjured", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["vendorInjured"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "vendorInjured", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              //Intrusion System Alarm Received
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("Intrusion System Alarm Received"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["alarmReceived"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "alarmReceived", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["alarmReceived"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "alarmReceived", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["alarmReceived"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "alarmReceived", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              //Action taken by soc
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("Action Taken by SOC"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["actionSoc"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent("actionSoc", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["actionSoc"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent("actionSoc", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["actionSoc"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent("actionSoc", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              SizedBox(height: 20),
 
-              SizedBox(
-                height: 20,
+              YesNoRadioGroup(
+                label: "Is Employees / Guard Injured?",
+                radioKey: "employeeInjured",
+                groupValue: state.radioSelections["employeeInjured"],
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
               ),
+              SizedBox(height: 20),
 
-              //Guard existence in location
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("Guard existence in location"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["guardExistence"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "guardExistence", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["guardExistence"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "guardExistence", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["guardExistence"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "guardExistence", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
+              YesNoRadioGroup(
+                label: "External vendor/Customers/Visitors injured?",
+                radioKey: "vendorInjured",
+                groupValue: state.radioSelections["vendorInjured"],
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              //Guard attacked
+              SizedBox(height: 20),
 
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("Guard attacked"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["guardAttacked"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "guardAttacked", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["guardAttacked"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "guardAttacked", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["guardAttacked"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "guardAttacked", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
+              YesNoRadioGroup(
+                label: "Intrusion System Alarm Received",
+                radioKey: "alarmReceived",
+                groupValue: state.radioSelections["alarmReceived"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
               ),
               SizedBox(height: 20),
-              //CCTv Camera
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("CCTV Camera available"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["cctvAvailable"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "cctvAvailable", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["cctvAvailable"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "cctvAvailable", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["cctvAvailable"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "cctvAvailable", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              //Legal Notified
 
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("Legal Notified"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["legalNotified"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "legalNotified", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["legalNotified"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "legalNotified", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["legalNotified"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "legalNotified", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
+              YesNoRadioGroup(
+                label: "Action Taken by SOC",
+                radioKey: "actionSoc",
+                groupValue: state.radioSelections["actionSoc"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
               ),
               SizedBox(height: 20),
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("H&S Notified"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["healthNotified"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "healthNotified", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["healthNotified"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "healthNotified", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["healthNotified"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "healthNotified", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
+
+              YesNoRadioGroup(
+                label: "Guard existence in location",
+                radioKey: "guardExistence",
+                groupValue: state.radioSelections["guardExistence"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
               ),
               SizedBox(height: 20),
-              //Police Report issuance
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("Police Report issuance"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["policeReport"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "policeReport", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["policeReport"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "policeReport", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["policeReport"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent(
-                                    "policeReport", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
+
+              YesNoRadioGroup(
+                label: "Guard attacked",
+                radioKey: "guardAttacked",
+                groupValue: state.radioSelections["guardAttacked"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
               ),
               SizedBox(height: 20),
-              //LEA Action
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Text("LEA Action"),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Yes,
-                          groupValue: state.radioSelections["leaAction"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent("leaAction", value!));
-                          },
-                        ),
-                        Text("Yes"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.No,
-                          groupValue: state.radioSelections["leaAction"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent("leaAction", value!));
-                          },
-                        ),
-                        Text("No"),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        Radio<YesNo>(
-                          value: YesNo.Not_Relevant,
-                          groupValue: state.radioSelections["leaAction"],
-                          onChanged: (YesNo? value) {
-                            context.read<IncidentBloc>().add(
-                                UpdateRadioSelectionEvent("leaAction", value!));
-                          },
-                        ),
-                        Text("Not relevant"),
-                      ],
-                    ),
-                  ),
-                ],
+
+              YesNoRadioGroup(
+                label: "CCTV Camera available",
+                radioKey: "cctvAvailable",
+                groupValue: state.radioSelections["cctvAvailable"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
+              ),
+              SizedBox(height: 20),
+
+              YesNoRadioGroup(
+                label: "Legal Notified",
+                radioKey: "legalNotified",
+                groupValue: state.radioSelections["legalNotified"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
+              ),
+              SizedBox(height: 20),
+
+              YesNoRadioGroup(
+                label: "H&S Notified",
+                radioKey: "healthNotified",
+                groupValue: state.radioSelections["healthNotified"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
+              ),
+              SizedBox(height: 20),
+
+              YesNoRadioGroup(
+                label: "Police Report issuance",
+                radioKey: "policeReport",
+                groupValue: state.radioSelections["policeReport"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
+              ),
+              SizedBox(height: 20),
+
+              YesNoRadioGroup(
+                label: "LEA Action",
+                radioKey: "leaAction",
+                groupValue: state.radioSelections["leaAction"],
+                includeNotRelevant: true,
+                onChanged: (key, value) => context
+                    .read<IncidentBloc>()
+                    .add(UpdateRadioSelectionEvent(key, value)),
               ),
               SizedBox(
                 height: 20,
@@ -1228,7 +689,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                       );
                       setState(() {
                         _isShareAction = false; // Reset flag
-                      });                    }
+                      });
+                    }
                     context
                         .read<IncidentBloc>()
                         .add(ShareReportEvent(formData: {
@@ -1241,6 +703,7 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                               ? detailsArabicController.text
                               : detailsController.text,
                           'socAction': actionController.text,
+                      'menuItems': state.lookupData.actionItems,
                           'closure': closureController.text,
                           'socMember': socMemberController.text,
                           'leaMemberName': leaMemberController.text,
@@ -1465,7 +928,8 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
                                 .toString()
                                 .substring(6),
                             "health": state.radioSelections["healthNotified"]
-                                .toString().substring(6),
+                                .toString()
+                                .substring(6),
                             "lea": state.radioSelections["leaAction"]
                                 .toString()
                                 .substring(6),
@@ -1497,5 +961,4 @@ class _IncidentReportFormState extends State<IncidentReportForm> {
     );
   }
 
-// Add other UI building methods...
 }
